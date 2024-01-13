@@ -1,0 +1,578 @@
+/* Common Styles */
+* {
+    box-sizing: border-box;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #193023; /* Dark green */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #32a144; /* Green */
+}
+
+    ::-webkit-scrollbar-thumb:vertical {
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #4ac167; /* Light green */
+    }
+
+/* Global Styles */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: calc(100% - 10%);
+    margin: 0 auto;
+    padding: 1%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: flex-start;
+    position: relative;
+}
+
+.tabs {
+    display: flex;
+    padding: 0%;
+}
+
+.tablink {
+    border: none;
+    background: none;
+    color: #ddd;
+    flex: 1;
+    padding: 2%;
+    font-size: 1em;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+    .tablink:hover {
+        color: #fff;
+    }
+
+    .tablink.active {
+        color: #2ecc71;
+        background-color: #333;
+    }
+
+.tabcontent {
+    display: none;
+    padding: 0.5%;
+}
+
+    .tabcontent h2 {
+        color: #58d68d;
+        text-align: center;
+    }
+
+button {
+    border: none;
+    padding: 1% 2%;
+    background-color: #58d68d;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 1% 0;
+    border-radius: 5px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+    button:hover {
+        background-color: #45b978;
+    }
+
+    button.active {
+        background-color: #2ecc71;
+    }
+
+    button.topic-button {
+        background-color: #3a7f5b;
+        margin-right: 2%;
+        margin-bottom: 2%;
+        padding: 1% 2%;
+    }
+
+.recordButtons {
+    display: flex;
+    align-items: flex-start;
+}
+
+    .recordButtons button {
+        margin-right: 2px;
+    }
+
+        .recordButtons button:last-child {
+            margin-right: 0;
+        }
+
+        .recordButtons button:not(:last-child) {
+            margin-right: 2px;
+        }
+
+
+
+
+textarea,
+input[type="text"],
+select,
+input[type="number"] {
+    width: 96%;
+    padding: 0.5%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: #333;
+    color: #fff;
+    font-size: 1em;
+    margin-bottom: 1%;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+#tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 0.5% 1%;
+    font-size: 0.8em;
+    display: none;
+}
+
+/* Theme Styles */
+.dark-theme {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+.light-theme {
+    background-color: #fff;
+    color: #333;
+}
+
+/* Chat Styles */
+#chatContainer {
+    flex-grow: 1;
+    background-color: #333;
+    padding: 0.5%;
+    display: flex;
+    flex-direction: column;
+}
+
+#historyContainer {
+    flex-grow: 1;
+    background-color: #333;
+    padding: 0%;
+    margin-bottom: 2%;
+    overflow-y: scroll;
+    height: calc(100% - 36px);
+}
+
+    #historyContainer::-webkit-scrollbar {
+        width: 8px;
+        background-color: rgba(51, 51, 51, 0.5); /* Dark grey with opacity */
+    }
+
+    #historyContainer::-webkit-scrollbar-track {
+        background-color: rgba(51, 51, 51, 0.5); /* Dark grey with opacity */
+    }
+
+    #historyContainer::-webkit-scrollbar-thumb {
+        background-color: rgba(85, 85, 85, 0.7); /* Grey with opacity */
+    }
+
+        #historyContainer::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(119, 119, 119, 0.7); /* Darker grey with opacity */
+        }
+
+
+
+#ask {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding: 0.5%;
+    position: relative;
+}
+
+.ask-input {
+    flex-grow: 1;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.5%;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-right: 1%;
+}
+
+#sendButtonQuestion {
+    background-color: #58d68d;
+    color: #fff;
+    border: none;
+    padding: 0.5% 2%;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    #sendButtonQuestion:hover {
+        background-color: #45b978;
+    }
+
+.user-message-blob {
+    color: #fff;
+    background-color: #222;
+    border-radius: 0;
+    padding: 8px 12px;
+    margin: 1% 0;
+    margin-right: auto;
+    max-width: 80%;
+    border: 1px solid #ccc;
+}
+
+.server-message-blob {
+    color: #fff;
+    background-color: #444;
+    border-radius: 0;
+    padding: 8px 12px;
+    margin: 1% 0;
+    margin-left: auto;
+    max-width: 80%;
+    border: 1px solid #555;
+}
+
+.error {
+    color: red;
+}
+
+/* Settings Styles */
+.settings-box {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2%;
+}
+
+    .settings-box .llm-settings {
+        flex-basis: 100%;
+        padding: 2%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #333;
+    }
+
+    .settings-box .update-settings {
+        flex-basis: 100%;
+        padding: 2%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #333;
+        margin: 1%;
+    }
+
+    .settings-box h3 {
+        color: #58d68d;
+        text-align: center;
+        margin-bottom: 1%;
+    }
+
+    .settings-box .setting {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1%;
+    }
+
+
+    .settings-box .setting label {
+        width: 40%;
+        color: #fff;
+    }
+
+    .settings-box .setting input {
+        width: 60%;
+        padding: 0.5%;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background: #333;
+        color: #fff;
+        font-size: 1em;
+    }
+
+    .settings-box button {
+        margin-top: 2%;
+    }
+
+/* Topic Styles */
+#topicOptions {
+    display: none;
+}
+
+.topic-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0;
+}
+
+    .topic-controls button {
+        border: none;
+        padding: 1% 2%;
+        background-color: #58d68d;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-right: 1%;
+        border-radius: 5px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .topic-controls .search-topic {
+        display: flex;
+        align-items: center;
+    }
+
+    .topic-controls input[type="text"] {
+        width: 100%;
+        padding: 0.5%;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background: #333;
+        color: #fff;
+        font-size: 1em;
+        margin-right: 10px;
+    }
+
+/* Topic Container Styles */
+.topic-container {
+    top: 0;
+    padding: 0;
+    flex-direction: row;
+    overflow-y: hidden;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100px;
+    overflow-x: auto;
+    background-color: #333;
+    position: relative;
+    margin-bottom: 1%;
+}
+
+.topic-list {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+
+.topic-box {
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+/* Topic Arrow Styles */
+.topic-arrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+    .topic-arrow button {
+        border: none;
+        background: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+        .topic-arrow button:hover {
+            color: #2ecc71;
+        }
+
+/* Topic Button Styles */
+.topic-button {
+    background-color: #3a7f5b;
+    margin-right: 2%;
+    margin-bottom: 2%;
+    padding: 1% 2%;
+}
+
+/* Topic Box Styles */
+.topicBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid #1e1e1e;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 10px;
+    max-height: 100px;
+    min-width: 150px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+/* Scroll Buttons */
+#scrollRightButton {
+    height: 100%;
+    min-width: 0;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    margin-left: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#scrollLeftButton {
+    height: 100%;
+    min-width: 0;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    margin-right: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#myExtensionOriginalContent {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.my-responsive-element {
+    width: 100%;
+}
+
+
+.logger-wrapper {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.logger-buttons-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 5px;
+    background-color: rgb(0, 50, 25);
+}
+
+.toggle-log, .clear-log, .save-log {
+    margin-right: 5px;
+    padding: 2px 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    background-color: rgb(0, 50, 25);
+}
+
+
+.logger-message-holder {
+    overflow-y: auto;
+    background-color: rgb(0, 0, 25);
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+    /* Hide default HTML checkbox */
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    height: 20px; /* Adjusted height */
+    width: 30px; /* Adjusted width for shorter slider */
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; /* Adjusted height */
+    width: 16px; /* Width for a circular knob */
+    left: 2px; /* Positioning */
+    bottom: 2px; /* Positioning */
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%; /* Circular knob */
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(18px); /* Adjusted translation for shorter slider */
+    -ms-transform: translateX(18px); /* Adjusted translation */
+    transform: translateX(18px); /* Adjusted translation */
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 20px; /* Border radius */
+}
+
+
+.settings-content {
+    /* No specific styles needed */
+    opacity: 1;
+    pointer-events: all;
+}
+
+.disabled-content {
+    opacity: 0.5; /* Grey out the entire settings content */
+}
+
+.disabled-content * {
+    pointer-events: none ;
+}
+
+

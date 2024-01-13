@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>WebNLP</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <div class="container">
+        <div class="tabs">
+
+            <button class="tablink" data-tab="Quest" title="Switch to EchoQuest">
+                <span class="tab-icon"><i class="fas fa-question"></i></span>
+                Quest
+            </button>
+            <button class="tablink" data-tab="Tweaks" title="Switch to EchoTweaks">
+                <span class="tab-icon"><i class="fas fa-cogs"></i></span>
+                Tweaks
+            </button>
+        </div>
+
+
+
+        <div id="Quest" class="tabcontent">
+            <div class="topic-controls">
+                <button id="newTopicButton"><i class="fas fa-plus"></i> New Topic</button>
+                <div class="search-topic">
+                    <input type="text" id="searchTopicInput" placeholder="Search topics">
+                    <button id="searchTopicButton"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="topic-container">
+                <button id="scrollLeftButton"><i class="fas fa-chevron-left"></i></button>
+                <div class="topic-list"></div>
+                <button id="scrollRightButton"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div id="topicOptions" class="popup">
+                <div class="popup-content">
+                    <span class="close-popup">&times;</span>
+                    <h3>Create New Topic</h3>
+                    <label for="topicNameInput">Topic Name:</label>
+                    <input type="text" id="topicNameInput" placeholder="Enter the topic name">
+                    <button id="createTopicButton">Create Topic</button>
+                </div>
+            </div>
+            <div id="chatContainer">
+                <div id="historyContainer"></div>
+            </div>
+            <div id="ask">
+                <textarea id="askInput" placeholder="Enter your question"></textarea>
+                <button id="sendButtonQuestion"><i class="fas fa-paper-plane"></i> Send</button>
+            </div>
+        </div>
+
+        <div id="Tweaks" class="tabcontent">
+            <div class="settings-box">
+                <!-- Custom LLM Settings i.e runpod or our own server -->
+
+                <div class="llm-settings">
+                    <label class="switch">
+                        <input type="checkbox" id="customLLMToggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <div class="settings-content ">
+
+                        <h4>Custom LLM Settings</h4>
+                        <div class="setting settings-content">
+                            <label for="llmServerInput">LLM Server:</label>
+                            <input type="text" id="llmServerInput" placeholder="Enter LLM Server">
+                            <span id="llmServerStatusIcon"></span>
+                        </div>
+                        <div class="setting settings-content">
+                            <label for="llmChatEndpointInput">LLM Chat Endpoint:</label>
+                            <input type="text" id="llmChatEndpointInput" placeholder="Enter LLM Chat Endpoint">
+                        </div>
+                        <div class="setting settings-content">
+                            <label for="llmSummarizeEndpointInput">LLM Summarize Endpoint:</label>
+                            <input type="text" id="llmSummarizeEndpointInput" placeholder="Enter LLM Summarize Endpoint">
+                        </div>
+                        <div class="setting settings-content">
+                            <label for="llmUpdateEndpointInput">LLM Update Endpoint:</label>
+                            <input type="text" id="llmUpdateEndpointInput" placeholder="Enter LLM Update Endpoint">
+                        </div>
+                        <div class="setting settings-content">
+                            <label for="llmModelInput">
+                                LLM Model:
+                            </label>
+                            <input type="text" id="llmModelInput" placeholder="Enter LLM Model">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Local LLM Settings i.e llamafile server -->
+            <div class="settings-box">
+                <div class="llm-settings">
+
+                    <label class="switch">
+                        <input type="checkbox" id="localLLMToggle">
+                        <span class="slider round"></span>
+                    </label>
+	                <div class="settings-content ">
+
+		                <h4>Local LLM Settings</h4>
+		                <div class="setting settings-content">
+			                <label for="LocalllmServerInput">LLM Server:</label>
+			                <input type="text" id="LocalllmServerInput" placeholder="Enter LLM Server">
+			                <span id="LocalllmServerStatusIcon"></span>
+		                </div>
+
+		                <div class="setting settings-content">
+			                <label for="LocalllmModelInput">
+				                LLM Model:
+			                </label>
+			                <input type="text" id="LocalllmModelInput" placeholder="Enter LLM Model">
+		                </div>
+
+
+	                </div>
+                </div>
+            </div>
+            <!-- Dropdown for selecting the LLM service -->
+            <div class="settings-box">
+                <div class="llm-settings">
+
+                    <label class="switch">
+                        <input type="checkbox" id="remoteLLMToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <div class="settings-content ">
+
+                        <h4>Remote LLM API Settings</h4>
+                        <div class="setting settings-content">
+                            <label for="llmService">Service:</label>
+                            <select id="llmService">
+                                <option value="openai">OpenAI</option>
+                                <option value="azure">Azure</option>
+                                <option value="anyscale">AnyScale</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="setting settings-content">
+                            <label for="RemoteServerIP">RemoteServer:</label>
+                            <input type="text" id="RemoteServerIP" placeholder="Enter LLM Server">
+                            <span id="RemoteServerStatusIcon"></span>
+                        </div>
+
+                        <div class="setting settings-content">
+                            <label for="RemoteServerTokenInput">Token:</label>
+                            <input type="text" id="RemoteServerTokenInput" placeholder="Enter Token">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="settings-box">
+                <div class="update-settings">
+                    <button id="updateButton">Update</button>
+                    <button id="saveSettingButton">Save Setting</button>
+                    <button id="loadSettingButton">Load Setting</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tooltip">
+            <div id="tooltipContent"></div>
+        </div>
+    </div>
+
+    <script src="./main.js"></script>
+    <script src="./Quest.js"></script>
+    <script src="./Tweaks.js"></script>
+    <script src="./logger.js"></script>
+
+</body>
+</html>
