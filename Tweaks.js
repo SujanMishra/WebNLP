@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (event.data && event.data.type === 'saveDataToDb') {
             const key = event.data.key;
             const data = event.data.data;
-            saveDataToDb(key, data);
+            saveDataToDb(key, data).then(r => {
+                
+            });
         } else if (event.data && event.data.type === 'setupAutoSave') {
             const data = event.data.data;
             const key = event.data.key;
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Open database
-    var request = window.indexedDB.open("data", 1);
+    let request = window.indexedDB.open("data", 1);
 
     request.onsuccess = async function (event) {
         db = event.target.result;
@@ -94,11 +96,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             // Enable or disable the current toggle's settings based on its state
-            var settingsContent = this.closest('.llm-settings').querySelector('.settings-content');
+            let settingsContent = this.closest('.llm-settings').querySelector('.settings-content');
             if (this.checked) {
                 enableSettings(settingsContent);
             } else {
                 disableSettings(settingsContent);
+            }
+            if (window.httpService) {
+                window.httpService.updateRequestHandler();
             }
         });
     });
@@ -122,18 +127,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial state setup
     window.addEventListener('load', () => {
         document.querySelectorAll('.switch input').forEach(toggle => {
-            var settingsContent = toggle.closest('.llm-settings').querySelector('.settings-content');
+            const settingsContent = toggle.closest('.llm-settings').querySelector('.settings-content');
             if (!toggle.checked) {
                 disableSettings(settingsContent);
             }
         });
     });
-
-
-
-
-
-
 
     async function saveSettings() {
         const missingFields = Object.keys(settingsValue).filter(key => {
@@ -215,7 +214,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 inputElement.addEventListener('input', () => {
                     values[name.replace('Input', '')] = inputElement.value; // Update the value in the values object
                     settingsValue[name.replace('Input', '')] = inputElement.value; // Update the corresponding property in settingsValue
-                    saveDataToDb(key, values); // Save all values together
+                    saveDataToDb(key, values).then(r => {
+                        
+                    }); // Save all values together
                     logMessage(`Value saved successfully. Field: ${name}, Value: ${inputElement.value}`, false);
                 });
             }
@@ -223,7 +224,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Save all values together on page unload
         window.addEventListener('beforeunload', () => {
-            saveDataToDb(key, values);
+            saveDataToDb(key, values).then(r => {
+                
+            });
         });
     }
 
@@ -234,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    
     
     function saveDataToDb(key, data) {
         return new Promise((resolve, reject) => {

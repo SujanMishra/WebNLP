@@ -8,7 +8,10 @@ class Topic {
     constructor(name) {
         this.name = name;
         this.messages = [];
-        this.metadata = {};
+        this.metadata = {
+            name: name
+        };
+        
     }
 
     addMessage(message, type) {
@@ -71,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let topics = [];
     let currentTopic = null;
     let fsHandle; // File System Handle
-
+    
     // Event Listeners
     newTopicButton.addEventListener("click", openTopicOptions);
     scrollLeftButton.addEventListener("click", scrollTopicListLeft);
@@ -113,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
         topicButton.classList.add("topic-button");
         topicButton.textContent = topicName;
         topicButton.addEventListener("click", function () {
-            handleTopicClick();
+            handleTopicClick(topic.name);
         });
 
         topicBox.prepend(topicButton);
@@ -150,14 +153,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentTopic) {
             currentTopic.display(historyContainer);
         } else {
-            console.log("No topic currently selected");
+            logMessage(`No topic currently selected ${topics.length}`);
         }
     }
 
     // Send Question
     function sendQuestion(event) {
-        var error = '';
-
+      
         if ((event.key === "Enter" && !event.shiftKey) || event.target === sendButtonQuestion) {
             event.preventDefault();
             const question = askInput.value.trim();
@@ -166,7 +168,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (!currentTopic) {
-                logMessage(getCallerInfo("Please select a topic before sending a message."), true);
+                if (topics.length > 0) {
+                    // select the last topic if the topics array is not empty
+                    currentTopic = topics[topics.length - 1];
+                    logMessage("You should have  selected a topic for this question , question is added to last active topic!.", false);
+                } else {
+                    // create a new topic with a guid value if the topics array is empty
+                    const guid = function() {
+                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                            let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                            return v.toString(16);
+                        });
+                    };
+
+                    currentTopic = new Topic(guid());
+                    logMessage("Please add a topic name a random topic was generated for this question !.", false);
+                    topics.push(currentTopic);
+                }
+               
                 return;
             }
 
@@ -174,88 +193,12 @@ document.addEventListener('DOMContentLoaded', function () {
             currentTopic.display(historyContainer);
 
             askInput.value = "";
+ 
+            window.httpService.sendHttpRequest(currentTopic, question);
 
-            const llmServer = llmServerInput.value.trim();
-            const llmChatEndpoint = llmChatEndpointInput.value.trim();
-
-            if (!llmServer) {
-
-                logMessage(getCallerInfo("LLM Server is not defined."), true);
-
-                return;
-            }
-
-            if (!llmChatEndpoint) {
-
-                logMessage(getCallerInfo("LLM Chat Endpoint is not defined."), true);
-
-                return;
-            }
-
-            const endpoint = `http://${llmServer}/${llmChatEndpoint}`;
-
-            Promise.race([
-                fetch(endpoint),
-                timeout(timeoutDelay, "LLM Server response timeout")
-            ])
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("LLM Server response was not ok.");
-                    }
-                    return Promise.race([
-                        fetch(endpoint, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({question})
-                        }),
-
-                        timeout(timeoutDelay, "LLM Chat Endpoint response timeout")
-
-                    ]);
-                })
-                .then(response => {
-                    if (!response.ok) {
-
-                        logMessage(getCallerInfo("LLM Chat Endpoint response was not successful."), true);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                   
-                    currentTopic.addMessage(data.response, SenderType.SERVER);
-                    currentTopic.display(historyContainer);
-
-                })
-                .catch(error => {
-
-                    logMessage(getCallerInfo(error), true);
-                });
         }
     }
-    function getCallerInfo(error) {
-        if (error instanceof Error) {
-            // Get the stack trace and split it into lines
-            const stackLines = error.stack.split("\n");
 
-            // The first line of the stack trace is "Error: <error message>"
-            // The second line contains the file name, line number, and column number
-            const errorInfo = stackLines[1];
-
-            // Combine the error message with the error info
-            return `${error.message} \n ${errorInfo}`;
-        } else {
-            // When "error" is not an instance of Error, treat it as a message string
-            const newError = new Error(error);  // Create a new Error for stack trace
-            // Get the stack trace and split it into lines
-            const stackLines = newError.stack.split("\n");
-
-            const errorInfo = stackLines[1];
-            
-            return `${newError.message} \n ${errorInfo}`;
-        }
-    }
     function logMessage(message, isError = false) {
         const logMessageData = {
             eventIdentifier: 'Quest',
@@ -364,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.postMessage(message, '*');
         } catch (error) {
 
-            logMessage(getCallerInfo(error), true);
+            logMessage((error), true);
         }
 
     }
@@ -380,8 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data: dataToAutoSave
     };
 
-    // window.postMessage(message, '*');
-
+    
     function loadDataFromDb(key) {
         const message = {
             type: 'loadDataFromDB',
@@ -389,23 +331,24 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         window.postMessage(message, '*');
     }
-
+    
+    loadDataFromDb('topics');
+   
     // Load topics on page load
-    window.addEventListener('DOMContentLoaded', (event) => {
-        loadDataFromDb('topics');
-    });
-
     window.addEventListener('message', function (event) {
         if (event.data && event.data.type === 'dataLoadedFromDb') {
             const key = event.data.key;
             const data = event.data.data;
 
             if (key === 'topics') {
-                // Assuming 'data' is an array of topics
+               
                 populateTopicList(data);
             }
         }
     });
-
+    
+    if (!window.httpService){
+        window.httpService = new HttpService();
+    }
 
 });

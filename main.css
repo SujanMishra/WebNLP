@@ -40,37 +40,37 @@ body {
     position: relative;
 }
 
-.tabs {
-    display: flex;
-    padding: 0%;
-}
+    .tabs {
+        display: flex;
+        padding: 0;
+    }
 
-.tablink {
-    border: none;
-    background: none;
-    color: #ddd;
-    flex: 1;
-    padding: 2%;
-    font-size: 1em;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
+    .tabLink {
+        border: none;
+        background: none;
+        color: #ddd;
+        flex: 1;
+        padding: 2%;
+        font-size: 1em;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
 
-    .tablink:hover {
+    .tabLink:hover {
         color: #fff;
     }
 
-    .tablink.active {
+    .tabLink.active {
         color: #2ecc71;
         background-color: #333;
     }
 
-.tabcontent {
-    display: none;
-    padding: 0.5%;
-}
+    .tabContent {
+        display: none;
+        padding: 0.5%;
+    }
 
-    .tabcontent h2 {
+    .tabContent h2 {
         color: #58d68d;
         text-align: center;
     }
@@ -175,7 +175,7 @@ input[type="file"] {
 #historyContainer {
     flex-grow: 1;
     background-color: #333;
-    padding: 0%;
+    padding: 0;
     margin-bottom: 2%;
     overflow-y: scroll;
     height: calc(100% - 36px);
@@ -239,8 +239,7 @@ input[type="file"] {
     background-color: #222;
     border-radius: 0;
     padding: 8px 12px;
-    margin: 1% 0;
-    margin-right: auto;
+    margin: 1% auto 1% 0;
     max-width: 80%;
     border: 1px solid #ccc;
 }
@@ -250,8 +249,7 @@ input[type="file"] {
     background-color: #444;
     border-radius: 0;
     padding: 8px 12px;
-    margin: 1% 0;
-    margin-left: auto;
+    margin: 1% 0 1% auto;
     max-width: 80%;
     border: 1px solid #555;
 }
@@ -354,7 +352,7 @@ input[type="file"] {
         font-size: 1em;
         margin-right: 10px;
     }
-
+    
 /* Topic Container Styles */
 .topic-container {
     top: 0;
@@ -550,7 +548,7 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-    -webkit-transform: translateX(18px); /* Adjusted translation for shorter slider */
+    
     -ms-transform: translateX(18px); /* Adjusted translation */
     transform: translateX(18px); /* Adjusted translation */
 }

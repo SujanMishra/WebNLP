@@ -1,8 +1,8 @@
 // Reference to the tab buttons
-const tabButtons = document.querySelectorAll('.tablink');
+const tabButtons = document.querySelectorAll('.tabLink');
 
 // Reference to the tab content elements
-const tabContents = document.querySelectorAll('.tabcontent');
+const tabContents = document.querySelectorAll('.tabContent');
 
 // Function to open a specific tab
 function openTab(event, tabName) {
@@ -37,7 +37,7 @@ function openDefaultTab() {
 
 // Attach click event listener to the parent container of tab buttons
 document.querySelector('.tabs').addEventListener('click', (event) => {
-    const button = event.target.closest('.tablink');
+    const button = event.target.closest('.tabLink');
     if (button) {
         const tabName = button.dataset.tab;
         openTab(event, tabName);
