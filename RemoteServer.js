@@ -1,23 +1,22 @@
 ﻿/**
  This script manages a web page interface for configuring and interacting with various language models services Api. It allows users to:
-  * Choose a language model service provider (e.g., OpenAI, Azure, AnyScale, or custom).
-  * Add and configure models associated with the selected provider.
-  * Store and manage API keys for these providers.
-  * Dynamically add new custom providers and models for future
-  *  Persistently store and load configuration data from a database.
+ * Choose a language model service provider (e.g., OpenAI, Azure, AnyScale, or custom).
+ * Add and configure models associated with the selected provider.
+ * Store and manage API keys for these providers.
+ * Dynamically add new custom providers and models for future
+ *  Persistently store and load configuration data from a database.
  */
 
 document.addEventListener('DOMContentLoaded', function () {
     let elements = {
-
-        llmServiceElement: document.getElementById("RemoteLLMService"),
-        OkButton: document.getElementById("RemoteServerNameOK"),
-        customFieldName: document.getElementById('RemoteServerName'),
-        customNameSelector: document.getElementById('CustomNameSelector'),
-        remoteModel: document.getElementById('RemoteModel'),
-        remoteLLMServerChatEndpoint: document.getElementById('RemoteLLMServerChatEndpoint'),
-        ApiKey: document.getElementById('ApiKey'),
+        llmServiceElement: document.querySelector('#RemoteLLMService'),
+        OkButton: document.querySelector('#RemoteServerNameOK'),
+        customFieldName: document.querySelector('#RemoteServerName'),
+        remoteModel: document.querySelector('#RemoteModel'),
+        remoteLLMServerChatEndpoint: document.querySelector('#RemoteLLMServerChatEndpoint'),
+        ApiKey: document.querySelector('#ApiKey'),
     };
+
 
     let dynamicModels = {};
 
@@ -167,7 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function addModelOptionDropdown(aiModels) {
         try {
 
-            elements.remoteModel.clear();
+            elements.remoteModel.innerHTML = '';
+
             Object.entries(aiModels).forEach(([model, details]) => {
                 let newOption = document.createElement("ModelOption");
                 newOption.text = model;

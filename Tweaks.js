@@ -1,28 +1,22 @@
 document.addEventListener('DOMContentLoaded', function () {
     const elements = {
-        
-        llmStatusIcon: document.getElementById("llmServerStatusIcon"),
-        updateButton: document.getElementById("updateButton"),
-        saveSettingButton: document.getElementById("saveSettingButton"),
-        loadSettingButton: document.getElementById("loadSettingButton"),
+        llmStatusIcon: document.querySelector('#LlmServerStatusIcon'),
+        updateButton: document.querySelector('#UpdateButton'),
+        saveSettingButton: document.querySelector('#SaveSettingButton'),
+        loadSettingButton: document.querySelector('#LoadSettingButton'),
     };
 
     const autoSavedElements = {
-        
-        llmServerInput: document.getElementById("llmServerInput"),
-        llmChatEndpointInput: document.getElementById("llmChatEndpointInput"),
-        llmSummarizeEndpointInput: document.getElementById("llmSummarizeEndpointInput"),
-        llmUpdateEndpointInput: document.getElementById("llmUpdateEndpointInput"),
-        llmModelInput: document.getElementById("llmModelInput"),
-        
+        llmServerInput: document.querySelector('.llm-input#CustomLLMServerInput'),
+        llmChatEndpointInput: document.querySelector('#CustomLLMChatEndpointInput'),
+        llmUpdateEndpointInput: document.querySelector('#CustomLLMUpdateEndpointInput'),
+        llmModelInput: document.querySelector('#CustomLLMModelInput'),
     };
     
-
     let settingsValue = {
 
         llmServer: autoSavedElements.llmServerInput.value,
-        llmChatEndpoint: autoSavedElements.llmChatEndpointInput.value,
-        llmSummarizeEndpoint: autoSavedElements.llmSummarizeEndpointInput.value,
+        llmChatEndpoint: autoSavedElements.llmChatEndpointInput.value,       
         llmUpdateEndpoint: autoSavedElements.llmUpdateEndpointInput.value,
         llmModel: autoSavedElements.llmModelInput.value,
     };

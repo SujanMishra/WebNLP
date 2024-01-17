@@ -130,28 +130,23 @@ function saveLog() {
         .map(messageElement => messageElement.textContent)
         .join('\n');
 
-    const fileData = new Blob([logContent], { type: 'text/plain' });
+    // Create a Blob from the log content
+    const blob = new Blob([logContent], { type: 'text/plain' });
 
-    const handle = window.showSaveFilePicker({
-        suggestedName: 'log.txt',
-        types: [
-            {
-                description: 'Text Files',
-                accept: {
-                    'text/plain': ['.txt'],
-                }
-            }
-        ]
-    });
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
 
-    handle.then(fileHandle => {
-        return fileHandle.createWritable();
-    }).then(writableStream => {
-        writableStream.write(fileData);
-        writableStream.close();
-    }).then(() => {
-        logMessage('Log saved successfully.', false);
-    }).catch(err => {
-        logMessage('Error saving log: ' + err, true);
-    });
+    // Create a temporary anchor element and trigger a download
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = 'log.txt'; // File name for the download
+    document.body.appendChild(downloadLink); // Append the link to the document
+    downloadLink.click(); // Programmatically click the link to trigger the download
+    document.body.removeChild(downloadLink); // Remove the link from the document
+
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
+
+    logMessage('Log saved successfully.', false);
 }
+

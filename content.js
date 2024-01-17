@@ -1,6 +1,6 @@
 (function () {
-    
-    const separation = 5; 
+
+    const separation = 1;
     let iframe;
     let iframeContainer;
     let originalContent;
@@ -10,54 +10,46 @@
     let startX = 0;
     let startOffset = 0;
     let mask;
+    let HandleBackgroundColor = 'rgb(50, 50, 50)';
 
     function injectIFrame() {
-
         chrome.storage.local.get('isExtensionOn', (data) => {
             if (data.isExtensionOn) {
                 return;
             }
-        });
+        })
 
-        if (!document.body.hasChildNodes()) {
-            document.body.innerHTML = '';
+        if (!document.body) {
+            document.body = document.createElement('body');
         }
 
+        // we create a flex container to hold everuthing
         flexContainer = document.createElement('div');
         flexContainer.id = 'myExtensionFlexContainer';
         flexContainer.style.display = 'flex';
         flexContainer.style.width = '100vw';
         flexContainer.style.height = '100vh';
 
+        // we capture original tab content 
         originalContent = document.createElement('div');
         originalContent.id = 'myExtensionOriginalContent';
-        originalContent.style.position = 'sticky';
-        originalContent.style.top = '0';
-        originalContent.style.left = '0';
-        originalContent.style.height = `calc(100vh - ${separation}px)`;
+        originalContent.style.flex = '1';
         originalContent.style.overflow = 'auto';
         originalContent.style.border = '2px solid #555';
-        originalContent.style.marginRight = `${separation}px`;
-        originalContent.style.marginBottom = `${separation}px`;
 
+        // we load whatever correntyy on tab to originalContent
         while (document.body.firstChild) {
             originalContent.appendChild(document.body.firstChild);
         }
 
-        flexContainer.appendChild(originalContent);
-
+        // we create a container for our side panel
         iframeContainer = document.createElement('div');
         iframeContainer.id = 'myExtensionIframeContainer';
-        iframeContainer.style.height = `calc(100vh - ${separation}px)`;
+        iframeContainer.style.flex = '1';
         iframeContainer.style.overflow = 'hidden';
-        iframeContainer.style.position = 'fixed';
-        iframeContainer.style.top = '0';
-        iframeContainer.style.right = '0';
-        iframeContainer.style.zIndex = '99999999';
         iframeContainer.style.border = '1px solid #555';
-        iframeContainer.style.marginLeft = `${separation}px`;
-        iframeContainer.style.marginBottom = `${separation}px`;
 
+        // we will create iframe of our side panel i.e the main page of our extention
         iframe = document.createElement('iframe');
         iframe.id = 'myExtensionIframe';
         iframe.style.width = '100%';
@@ -65,103 +57,93 @@
         iframe.src = chrome.runtime.getURL('main.html');
         iframe.style.border = 'none';
 
+        // put it to container , this way if we need other pages in case we can create and add in the container . 
         iframeContainer.appendChild(iframe);
-        flexContainer.appendChild(iframeContainer);
-        document.body.appendChild(flexContainer);
 
+        // now we add a handle that can be used to drag around to resize our split of original and our extention
         handle = document.createElement('div');
         handle.id = 'myExtensionHandle';
-        handle.style.width = '5px';
-        handle.style.height = `calc(100vh - ${separation}px)`;
-        handle.style.position = 'fixed';
-        handle.style.top = '0';
-        handle.style.left = `calc(50% - ${separation / 2 + 2.5}px)`;
-        handle.style.zIndex = '100000000';
-        handle.style.backgroundColor = '#333';
+        handle.style.width = '3px';
+        handle.style.height = '100vh';
+        handle.style.backgroundColor = HandleBackgroundColor;
         handle.style.cursor = 'col-resize';
-        handle.style.border = '1px solid #555';
-        handle.style.marginBottom = `${separation}px`;
+        handle.style.flexShrink = 0;
+        handle.style.zIndex = '9999'; // Ensure it's above other elements
 
-        document.body.appendChild(handle);
+        // its important the order of following for handle to come in center of both original and extention 
+        flexContainer.appendChild(originalContent);
+        flexContainer.appendChild(handle);
+        flexContainer.appendChild(iframeContainer);
 
-        handle.addEventListener('mousedown', handleMouseDown, false);
-        document.addEventListener('mousemove', drag, false);
-        document.addEventListener('mouseup', handleMouseUp, false);
+        // finally we will add all the composition to body of original tab 
+        document.body.appendChild(flexContainer);
+
+        // set 25% to our extention for initial load
+        setSplit(window.innerWidth * .75);
 
         // Add event listener for window resize
         window.addEventListener('resize', handleWindowResize, false);
-
-        setSplit(window.innerWidth * .75);
-
+        // we only care for mouse event on  handle
+        handle.addEventListener('mousedown', handleMouseDown, false);
+        // we will fire up regardless of handle or anywhere else
+        document.addEventListener('mouseup', handleMouseUp, false);
         // Add hover effect
         handle.addEventListener('mouseover', function () {
-            handle.style.backgroundColor = 'limegreen';
+            handle.style.backgroundColor = 'rgb(50, 100, 200)';
         });
-
-        // Remove hover effect
-        handle.addEventListener('mouseout', function () {
-            handle.style.backgroundColor = 'darkgreen';
+        // remove upon mouse out hover effect
+        handle.addEventListener('mouseout', function() {
+            handle.style.backgroundColor = HandleBackgroundColor; // Revert to original color
         });
 
     }
+
 
     function handleMouseDown(e) {
         e.preventDefault();
         isDragging = true;
         startX = e.clientX;
-        startOffset = handle.offsetLeft;
-        handle.style.backgroundColor = 'darkgreen'; // darken color during drag
-
-        // Add a mask to prevent iframe from capturing mouse events during dragging
+        handle.style.backgroundColor = 'rgb(50, 150, 50)';
+        handle.style.width = '5px';
+        // Add a mask to prevent capturing mouse events during dragging
         mask = document.createElement('div');
         mask.style.position = 'fixed';
         mask.style.top = '0';
-        mask.style.right = '0';
-        mask.style.width = iframeContainer.style.width;
+        mask.style.left = '0';
+        mask.style.width = '100vw';
         mask.style.height = '100vh';
         mask.style.zIndex = '999999999';
         document.body.appendChild(mask);
+        document.addEventListener('mousemove', drag, false);
     }
+
 
     function drag(e) {
         e.preventDefault();
         if (isDragging) {
-            const dragOffset = e.clientX - startX;
-            const newOffset = startOffset + dragOffset;
-            const maxWidth = window.innerWidth - handle.offsetWidth;
+            const currentX = e.clientX;
+            const newWidthOriginal = currentX;
+            const newWidthIframe = window.innerWidth - currentX;
 
-            if (newOffset >= 0 && newOffset <= maxWidth) {
-                const handleWidth = handle.offsetWidth;
-
-                handle.style.left = newOffset + 'px';
-                originalContent.style.width = newOffset + handleWidth / 2 + 'px';
-                iframeContainer.style.width = maxWidth - newOffset - handleWidth / 2 + 'px';
-
-                if (mask) {
-                    mask.style.width = iframeContainer.style.width;
-                }
+            if (newWidthOriginal >= 0 && newWidthIframe >= 0) {
+                originalContent.style.flex = `0 0 ${newWidthOriginal}px`;
+                iframeContainer.style.flex = `0 0 ${newWidthIframe}px`;
             }
         }
     }
 
+
     function handleMouseUp() {
         isDragging = false;
-        handle.style.backgroundColor = '#333'; // revert to original color after drag
-
-        // Recalculate the position of handle and iframeContainer
-        const handleWidth = handle.offsetWidth;
-        const handleLeft = parseInt(handle.style.left);
-        const maxWidth = window.innerWidth - handle.offsetWidth;
-
-        handle.style.left = handleLeft + 'px';
-        originalContent.style.width = handleLeft + handleWidth / 2 + 'px';
-        iframeContainer.style.width = maxWidth - handleLeft - handleWidth / 2 + 'px';
-
+        handle.style.backgroundColor = HandleBackgroundColor;
+        handle.style.width = '3px';
         if (mask) {
             mask.remove();
             mask = null;
         }
+        document.removeEventListener('mousemove', drag, false);
     }
+
 
     function handleWindowResize() {
         // Calculate the new split position based on the window width
@@ -196,7 +178,6 @@
                 return;
             }
         });
-
 
 
         if (iframeContainer && iframeContainer.parentNode) {
@@ -244,8 +225,6 @@
             });
         }
     });
-
-
 
 
 })();

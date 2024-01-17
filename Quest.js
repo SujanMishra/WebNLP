@@ -55,19 +55,23 @@ class Topic {
 document.addEventListener('DOMContentLoaded', function () {
     // Global Variables
 
-    const newTopicButton = document.getElementById("newTopicButton");
-    const topicContainer = document.querySelector(".topic-container");
-    const topicList = document.querySelector(".topic-list");
-    const scrollLeftButton = document.getElementById("scrollLeftButton");
-    const scrollRightButton = document.getElementById("scrollRightButton");
-    const topicOptions = document.getElementById("topicOptions");
-    const createTopicButton = document.getElementById("createTopicButton");
-    const topicNameInput = document.getElementById("topicNameInput");
-    const chatContainer = document.getElementById("chatContainer");
-    const historyContainer = document.getElementById("historyContainer");
-    const ask = document.getElementById("ask");
-    const askInput = document.getElementById("askInput");
-    const sendButtonQuestion = document.getElementById("sendButtonQuestion");
+    const elements = {
+        newTopicButton: document.querySelector("#NewTopicButton"),
+        topicContainer: document.querySelector("#TopicContainer"), 
+        topicList: document.querySelector("#TopicList"), 
+        scrollLeftButton: document.querySelector("#ScrollLeftButton"),
+        scrollRightButton: document.querySelector("#ScrollRightButton"),
+        topicOptions: document.querySelector("#TopicOptions"),
+        createTopicButton: document.querySelector("#CreateTopicButton"),
+        topicNameInput: document.querySelector("#TopicNameInput"),
+        chatContainer: document.querySelector("#ChatContainer"), 
+        historyContainer: document.querySelector("#HistoryContainer"),
+        ask: document.querySelector(".Container#Ask"), // Only ID selector as there's no class
+        askInput: document.querySelector("#AskInput"),
+        sendButtonQuestion: document.querySelector("#SendButtonQuestion")
+    };
+
+
     const timeoutDelay = 500;
 
     // Topics array to store all the Topic instances
@@ -76,22 +80,22 @@ document.addEventListener('DOMContentLoaded', function () {
     let fsHandle; // File System Handle
     
     // Event Listeners
-    newTopicButton.addEventListener("click", openTopicOptions);
-    scrollLeftButton.addEventListener("click", scrollTopicListLeft);
-    scrollRightButton.addEventListener("click", scrollTopicListRight);
-    createTopicButton.addEventListener("click", createTopic);
-    sendButtonQuestion.addEventListener("click", sendQuestion);
-    askInput.addEventListener("keydown", sendQuestion);
+    elements.newTopicButton.addEventListener("click", openTopicOptions);
+    elements.scrollLeftButton.addEventListener("click", scrollTopicListLeft);
+    elements. scrollRightButton.addEventListener("click", scrollTopicListRight);
+    elements.createTopicButton.addEventListener("click", createTopic);
+    elements.sendButtonQuestion.addEventListener("click", sendQuestion);
+    elements.askInput.addEventListener("keydown", sendQuestion);
 
     // Open Topic Options
     function openTopicOptions() {
-        topicOptions.style.display = "block";
+        elements.topicOptions.style.display = "block";
     }
 
 
     // Create New Topic
     function createTopic() {
-        const topicName = topicNameInput.value.trim();
+        const topicName = elements.topicNameInput.value.trim();
         if (topicName === "") {
             alert("Please enter a topic name.");
             return;
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!topicBox || topicBox.childElementCount >= 3) {
             topicBox = document.createElement("div");
             topicBox.classList.add("topicBox");
-            topicList.prepend(topicBox);
+            elements.topicList.prepend(topicBox);
         }
 
         const topicButton = document.createElement("button");
@@ -121,8 +125,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         topicBox.prepend(topicButton);
 
-        topicNameInput.value = "";
-        topicOptions.style.display = "none";
+        elements.topicNameInput.value = "";
+        elements.topicOptions.style.display = "none";
 
         // Save the new topic to the database
         saveDataToDb('topics', topics);
@@ -133,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
         topics.forEach(topic => {
             const topicBox = document.createElement("div");
             topicBox.classList.add("topicBox");
-            topicList.prepend(topicBox);
+            elements.topicList.prepend(topicBox);
 
             const topicButton = document.createElement("button");
             topicButton.classList.add("topic-button");
@@ -151,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleTopicClick(topicName) {
         currentTopic = topics.find(topic => topic.name === topicName);
         if (currentTopic) {
-            currentTopic.display(historyContainer);
+            currentTopic.display(elements.historyContainer);
         } else {
             logMessage(`No topic currently selected ${topics.length}`);
         }
@@ -160,9 +164,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Send Question
     function sendQuestion(event) {
       
-        if ((event.key === "Enter" && !event.shiftKey) || event.target === sendButtonQuestion) {
+        if ((event.key === "Enter" && !event.shiftKey) || event.target === elements.sendButtonQuestion) {
             event.preventDefault();
-            const question = askInput.value.trim();
+            const question = elements.askInput.value.trim();
             if (question === "") {
                 return;
             }
@@ -190,9 +194,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             currentTopic.addMessage(question, SenderType.USER);
-            currentTopic.display(historyContainer);
+            currentTopic.display(elements.historyContainer);
 
-            askInput.value = "";
+            elements.askInput.value = "";
  
             window.httpService.sendHttpRequest(currentTopic, question);
 
@@ -214,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
             notification.textContent = "Check Log! @'Tweaks'";
             notification.style.backgroundColor = "#ffcccc";
             notification.style.color = "#ff0000";
-            historyContainer.appendChild(notification);
+            elements.historyContainer.appendChild(notification);
         }
     }
 
@@ -223,70 +227,70 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Scroll Topic List Left
     function scrollTopicListLeft() {
-        if (scrollLeftButton.classList.contains("disabled")) {
+        if (elements.scrollLeftButton.classList.contains("disabled")) {
             return;
         }
-        const currentScroll = topicList.style.transform.match(/translateX\(-(\d+)px\)/);
+        const currentScroll = elements.topicList.style.transform.match(/translateX\(-(\d+)px\)/);
         const scrollAmount = currentScroll ? parseInt(currentScroll[1], 10) : 0;
-        const availableWidth = topicContainer.offsetWidth - (scrollLeftButton.offsetWidth + scrollRightButton.offsetWidth);
-        const maxScroll = topicList.offsetWidth - availableWidth;
+        const availableWidth = elements.topicContainer.offsetWidth - (elements.scrollLeftButton.offsetWidth + elements.scrollRightButton.offsetWidth);
+        const maxScroll = elements.topicList.offsetWidth - availableWidth;
         const newScroll = Math.max(scrollAmount - availableWidth, 0);
-        topicList.style.transform = `translateX(-${newScroll}px)`;
+        elements. topicList.style.transform = `translateX(-${newScroll}px)`;
         if (newScroll === 0) {
-            scrollLeftButton.classList.add("disabled");
+            elements.scrollLeftButton.classList.add("disabled");
         }
-        scrollRightButton.classList.remove("disabled");
+        elements.scrollRightButton.classList.remove("disabled");
     }
 
     // Scroll Topic List Right
     function scrollTopicListRight() {
-        if (scrollRightButton.classList.contains("disabled")) {
+        if (elements.scrollRightButton.classList.contains("disabled")) {
             return;
         }
-        const currentScroll = topicList.style.transform.match(/translateX\(-(\d+)px\)/);
+        const currentScroll = elements.topicList.style.transform.match(/translateX\(-(\d+)px\)/);
         const scrollAmount = currentScroll ? parseInt(currentScroll[1], 10) : 0;
-        const availableWidth = topicContainer.offsetWidth - (scrollLeftButton.offsetWidth + scrollRightButton.offsetWidth);
-        const maxScroll = topicList.offsetWidth - availableWidth;
+        const availableWidth = elements.topicContainer.offsetWidth - (elements.scrollLeftButton.offsetWidth + elements.scrollRightButton.offsetWidth);
+        const maxScroll = elements.topicList.offsetWidth - availableWidth;
         const newScroll = Math.min(scrollAmount + availableWidth, maxScroll);
-        topicList.style.transform = `translateX(-${newScroll}px)`;
+        elements.topicList.style.transform = `translateX(-${newScroll}px)`;
         if (newScroll === maxScroll) {
-            scrollRightButton.classList.add("disabled");
+            elements.scrollRightButton.classList.add("disabled");
         }
-        scrollLeftButton.classList.remove("disabled");
+        elements.scrollLeftButton.classList.remove("disabled");
     }
 
     // Adjust Container Heights
     function adjustContainerHeights() {
         const windowHeight = window.innerHeight;
-        const newTopicButtonHeight = newTopicButton.offsetHeight;
-        const topicContainerHeight = topicContainer.offsetHeight;
-        const askHeight = ask.offsetHeight;
+        const newTopicButtonHeight = elements.newTopicButton.offsetHeight;
+        const topicContainerHeight = elements.topicContainer.offsetHeight;
+        const askHeight = elements.ask.offsetHeight;
 
         const containerHeight = windowHeight - (newTopicButtonHeight + askHeight + topicContainerHeight);
         const adjustedContainerHeight = containerHeight - containerHeight * 0.4;
-        chatContainer.style.height = adjustedContainerHeight + "px";
+        elements. chatContainer.style.height = adjustedContainerHeight + "px";
 
         const historyContainerHeight = adjustedContainerHeight - askHeight;
-        historyContainer.style.height = historyContainerHeight + "px";
+        elements.historyContainer.style.height = historyContainerHeight + "px";
 
-        const topicContainerWidth = topicContainer.offsetWidth;
-        const topicListWidth = topicList.offsetWidth;
-        const scrollButtonsWidth = scrollLeftButton.offsetWidth + scrollRightButton.offsetWidth;
+        const topicContainerWidth = elements.topicContainer.offsetWidth;
+        const topicListWidth = elements.topicList.offsetWidth;
+        const scrollButtonsWidth = elements.scrollLeftButton.offsetWidth + elements.scrollRightButton.offsetWidth;
 
         if (topicListWidth > topicContainerWidth) {
-            topicContainer.classList.add("scrollable");
+            elements.topicContainer.classList.add("scrollable");
             const availableWidth = topicContainerWidth - scrollButtonsWidth;
             const maxScroll = topicListWidth - availableWidth;
-            topicList.style.maxWidth = topicListWidth + "px";
-            topicList.style.transform = `translateX(-${maxScroll}px)`;
-            scrollLeftButton.classList.remove("disabled");
-            scrollRightButton.classList.add("disabled");
+            elements.topicList.style.maxWidth = topicListWidth + "px";
+            elements.topicList.style.transform = `translateX(-${maxScroll}px)`;
+            elements.scrollLeftButton.classList.remove("disabled");
+            elements.scrollRightButton.classList.add("disabled");
         } else {
-            topicContainer.classList.remove("scrollable");
-            topicList.style.maxWidth = "none";
-            topicList.style.transform = "translateX(0)";
-            scrollLeftButton.classList.add("disabled");
-            scrollRightButton.classList.add("disabled");
+            elements.topicContainer.classList.remove("scrollable");
+            elements.topicList.style.maxWidth = "none";
+            elements.topicList.style.transform = "translateX(0)";
+            elements.scrollLeftButton.classList.add("disabled");
+            elements.scrollRightButton.classList.add("disabled");
         }
     }
 

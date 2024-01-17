@@ -1,18 +1,18 @@
 // Reference to the tab buttons
-const tabButtons = document.querySelectorAll('.tabLink');
+const tabLinks = document.querySelectorAll('.tabLink');
 
-// Reference to the tab content elements
-const tabContents = document.querySelectorAll('.tabContent');
-
-// Function to open a specific tab
+// Function to open a specific tab and set tab content height
 function openTab(event, tabName) {
+    // Reference to the tab content elements
+    const tabContents = document.querySelectorAll('.tabContent');
+
     // Hide all tab contents
     tabContents.forEach((tabContent) => {
         tabContent.style.display = 'none';
     });
 
     // Remove the 'active' class from all tab buttons
-    tabButtons.forEach((button) => {
+    tabLinks.forEach((button) => {
         button.classList.remove('active');
     });
 
@@ -21,19 +21,27 @@ function openTab(event, tabName) {
 
     // Add the 'active' class to the clicked tab button
     event.currentTarget.classList.add('active');
+
+    // Calculate and set the height of .tabContent
+    const tabsHeight = document.querySelector('.tabs').offsetHeight;
+    const bodyHeight = document.body.clientHeight;
+    const tabContentHeight = bodyHeight - tabsHeight;
+
+    tabContents.forEach((tabContent) => {
+        tabContent.style.height = `${tabContentHeight}px`;
+    });
 }
 
-// Function to open the default tab
+// Function to open the default tab and set tab content height
+
 function openDefaultTab() {
     // Get the first tab name
-    const defaultTabName = tabButtons[0].dataset.tab;
+    const defaultTabName = tabLinks[0].dataset.tab;
 
-    // Show the default tab content
-    document.getElementById(defaultTabName).style.display = 'block';
-
-    // Add the 'active' class to the default tab button
-    tabButtons[0].classList.add('active');
+    // Call openTab with the default tab name
+    openTab({ currentTarget: tabLinks[0] }, defaultTabName);
 }
+
 
 // Attach click event listener to the parent container of tab buttons
 document.querySelector('.tabs').addEventListener('click', (event) => {

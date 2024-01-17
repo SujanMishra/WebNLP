@@ -14,76 +14,82 @@ class HttpService {
         window.httpService = this;
     }
 
-    refreshElements() {
+     refreshElements() {
         return {
-            historyContainer: document.getElementById("historyContainer"),
+            historyContainer: document.querySelector('.llm-element#HistoryContainer'),
 
-            remoteLLMToggle: document.getElementById('remoteLLMToggle').checked,
-            remoteServerIP: document.getElementById('RemoteServerIP').value,
-            ApiKey: document.getElementById('ApiKey').value,
-            remoteLLMService: document.getElementById('RemoteLLMService').value,
+            remoteLLMToggle: document.querySelector('.llm-input#RemoteLLMToggle'),
+            remoteServerIP: document.querySelector('.llm-input#RemoteServerIP'),
+            ApiKey: document.querySelector('.llm-input#apiKey'),
+            remoteLLMService: document.querySelector('.llm-select#RemoteLLMService'),
+            RemoteServerName: document.querySelector('.llm-input#RemoteServerName'),
 
-            localLLMToggle: document.getElementById('localLLMToggle').checked,
-            localLLMServerInput: document.getElementById('LocalLLMServerInput').value,
-            localLLMEndpoint: document.getElementById('LocalLLMServerChatEndpoint').value,
+            localLLMToggle: document.querySelector('.llm-input#LocalLLMToggle'),
+            localLLMServerInput: document.querySelector('.llm-input#LocalLLMServerInput'),
+            localLLMEndpoint: document.querySelector('.llm-input#LocalLLMEndpoint'),
 
-            customLLMToggle: document.getElementById('customLLMToggle').checked,
-            customLLMChatEndpointInput: document.getElementById('CustomLLMChatEndpointInput').value,
-            customLLMServerInput: document.getElementById('CustomLLMServerInput').value,
+            customLLMToggle: document.querySelector('.llm-input#CustomLLMToggle'),
+            customLLMChatEndpointInput: document.querySelector('.llm-input#CustomLLMChatEndpointInput'),
+            customLLMServerInput: document.querySelector('.llm-input#CustomLLMServerInput'),
 
-            RemoteLLMService: document.getElementById('RemoteLLMService').value,
-            RemoteServerName: document.getElementById('RemoteServerName').value,
-            RemoteServerTokenInput: document.getElementById('RemoteServerTokenInput').value,
-
-            LocalLLMModelInput: document.getElementById('LocalLLMModelInput').value,
-            CustomLLMModelInput: document.getElementById('CustomLLMModelInput').value,
-            CustomLLMUpdateEndpointInput: document.getElementById('CustomLLMUpdateEndpointInput').value,
-
-            
+            LocalLLMModelInput: document.querySelector('.llm-input#LocalLLMModelInput'),
+            CustomLLMModelInput: document.querySelector('.llm-input#CustomLLMModelInput'),
+            CustomLLMUpdateEndpointInput: document.querySelector('.llm-input#CustomLLMUpdateEndpointInput'),
         };
     }
 
+
+
     updateRequestHandler() {
-        this.requestHandler = new RequestHandler(this.getLLMSetting(this.elements));
+        
+        let llmSetting = this.getLLMSetting(this.elements);
+        if (llmSetting && llmSetting.ApiKey && llmSetting.endpoint){
+            
+            this.requestHandler = new RequestHandler(llmSetting);
+            
+        }
+        else {
+            logMessage("LLM settings are not defined.", true);
+        }
     }
 
     getLLMSetting(elements) {
         let endpoint;
         let ApiKey;
 
-        if (!elements.remoteLLMToggle && !elements.localLLMToggle && !elements.customLLMToggle) {
+        if (!elements.remoteLLMToggle.checked && !elements.localLLMToggle.checked && !elements.customLLMToggle.checked) {
             logMessage("No LLM settings toggle is activated.", true);
             return null;
         }
 
-        if (elements.remoteLLMToggle) {
-            if (!elements.remoteServerIP) {
+        if (elements.remoteLLMToggle.checked) {
+            if (!elements.remoteServerIP.value) {
                 logMessage(("LLM Server is not defined."), true);
                 return null;
             }
-            if (!elements.ApiKey) {
+            if (!elements.ApiKey.value) {
                 logMessage(("Token is not defined."), true);
                 return null;
             }
-            endpoint = `https://${elements.remoteServerIP}`;
-            ApiKey = elements.ApiKey;
+            endpoint = `https://${elements.remoteServerIP.value}`;
+            ApiKey = elements.ApiKey.value;
         }
 
-        if (elements.localLLMToggle) {
-            if (!elements.localLLMServerInput || !elements.localLLMEndpoint) {
+        if (elements.localLLMToggle.checked) {
+            if (!elements.localLLMServerInput.value || !elements.localLLMEndpoint.value) {
                 logMessage(("LLM Server or LLM Chat Endpoint is not defined."), true);
                 return null;
             }
-            endpoint = `https://${elements.localLLMServerInput}/${elements.localLLMEndpoint}`;
+            endpoint = `https://${elements.localLLMServerInput.value}/${elements.localLLMEndpoint.value}`;
             ApiKey = null;
         }
 
-        if (elements.customLLMToggle) {
-            if (!elements.customLLMServerInput || !elements.customLLMChatEndpointInput) {
+        if (elements.customLLMToggle.checked) {
+            if (!elements.customLLMServerInput.value || !elements.customLLMChatEndpointInput.value) {
                 logMessage(("LLM Server or LLM Chat Endpoint is not defined."), true);
                 return null;
             }
-            endpoint = `https://${elements.customLLMServerInput}/${elements.customLLMChatEndpointInput}`;
+            endpoint = `https://${elements.customLLMServerInput.value}/${elements.customLLMChatEndpointInput.value}`;
             ApiKey = null;
         }
 
@@ -120,7 +126,7 @@ class RequestHandler {
     }
 
     sendRequest(question) {
-        let headers = {"Content-Type": "application/json"};
+        let headers = {"Content-Type": "application/json,charset=UTF-8"};
         if (this.ApiKey) {
             headers["Authorization"] = `Bearer ${this.ApiKey}`;
         }
