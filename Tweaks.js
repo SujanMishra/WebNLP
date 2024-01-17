@@ -81,52 +81,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.switch input').forEach(toggle => {
         toggle.addEventListener('change', function () {
-            // Turn off all other toggles and disable their corresponding settings
+            // Get the closest settingsContent for the current toggle
+            const settingsContent = this.closest('.llm-settings').querySelector('.settings-content');
+
+            // Prevent turning off the current switch
+            if (!this.checked) {
+                this.checked = true;
+                return; // Do not hide the settingsContent in this case
+            }
+
+            // Turn off all other toggles and hide their settingsContent
             document.querySelectorAll('.switch input').forEach(otherToggle => {
                 if (otherToggle !== this) {
                     otherToggle.checked = false;
-                    disableSettings(otherToggle.closest('.llm-settings').querySelector('.settings-content'));
+                    const otherSettingsContent = otherToggle.closest('.llm-settings').querySelector('.settings-content');
+                    otherSettingsContent.style.display = 'none';
                 }
             });
 
-            // Enable or disable the current toggle's settings based on its state
-            let settingsContent = this.closest('.llm-settings').querySelector('.settings-content');
-            if (this.checked) {
-                enableSettings(settingsContent);
-            } else {
-                disableSettings(settingsContent);
-            }
+            // Show the settingsContent for the current toggle
+            settingsContent.style.display = 'block';
+
             if (window.httpService) {
                 window.httpService.updateRequestHandler();
             }
         });
     });
 
-    // Disable all form elements within a settings content div
-    function disableSettings(settingsDiv) {
-        settingsDiv.classList.add('disabled-settings');
-        settingsDiv.querySelectorAll('input, select, button, textarea').forEach(elem => {
-            elem.disabled = true;
-        });
-    }
-
-    // Enable all form elements within a settings content div
-    function enableSettings(settingsDiv) {
-        settingsDiv.classList.remove('disabled-settings');
-        settingsDiv.querySelectorAll('input, select, button, textarea').forEach(elem => {
-            elem.disabled = false;
-        });
-    }
-
-    // Initial state setup
+// Initial state setup
     window.addEventListener('load', () => {
         document.querySelectorAll('.switch input').forEach(toggle => {
             const settingsContent = toggle.closest('.llm-settings').querySelector('.settings-content');
-            if (!toggle.checked) {
-                disableSettings(settingsContent);
-            }
+            settingsContent.style.display = toggle.checked ? 'block' : 'none';
         });
     });
+
 
     async function saveSettings() {
         const missingFields = Object.keys(settingsValue).filter(key => {

@@ -478,7 +478,11 @@ input[type="file"] {
 .settings-box button {
     margin-top: 2%;
 }
-
+.toggle-container {
+    display: flex;
+    align-items: center;   
+    height: 20px;
+}
 
 #myExtensionOriginalContent {
     width: 100%;
@@ -523,7 +527,8 @@ input[type="file"] {
 /* The switch - the box around the slider */
 .switch {
     position: relative;
-    display: inline-block;
+    display: inline-flex; /* Use inline-flex to align the slider and label horizontally */
+    align-items: center; /* Center vertically within the container */
     width: 60px;
     height: 34px;
 }
@@ -539,15 +544,16 @@ input[type="file"] {
 .slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
+    top: 50%; /* Adjusted to vertically center the slider */
+    transform: translateY(-50%); /* Adjusted to vertically center the slider */
     left: 0;
     right: 0;
     bottom: 0;
     background-color: #ccc;
     -webkit-transition: .4s;
     transition: .4s;
-    height: 20px; /* Adjusted height */
-    width: 30px; /* Adjusted width for shorter slider */
+    height: 20px;
+    width: 30px;
 }
 
 .slider:before {

@@ -24,7 +24,7 @@
 
     <div id="Quest" class=" tabContent ">
         <div class="tabContentQuest">
-        
+
             <div class="topic-controls">
                 <button title="NewTopicButton" aria-label="NewTopicButton" id="NewTopicButton" class="llm-button"
                         data-type="NewTopicButton"><i class="fas fa-plus"></i> New Topic
@@ -73,25 +73,28 @@
                 </button>
             </div>
 
-        
+
         </div>
     </div>
 
     <div id="Tweaks" class=" tabContent ">
-        
-        <div class="  tabContentTweaks">
-                         
-             
-            <div class="settings-box">
-                
-                <div class="llm-settings">
-                    <label class="switch">
-                        <input title="CustomLLMToggle" type="checkbox" id="CustomLLMToggle" class="llm-input"
-                               data-type="CustomLLMToggle">
-                        <span class="slider round"></span>
-                    </label>
-                    <div class="settings-content ">
 
+        <div class="  tabContentTweaks">
+
+
+            <div class="settings-box">
+
+                <div class="llm-settings">
+                    <div class="toggle-container">
+                        <label class="switch">
+                            <input title="CustomLLMToggle" type="checkbox" id="CustomLLMToggle" class="llm-input"
+                                   data-type="CustomLLMToggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <h5> Custom LLM </h5>
+                    </div>
+                    
+                    <div class="settings-content ">
                         <h4>Custom LLM Settings</h4>
                         <div class="setting settings-content">
                             <label for="CustomLLMServerInput">Custom LLM Server:</label>
@@ -120,15 +123,20 @@
                 </div>
             </div>
 
-             
+
             <div class="settings-box">
                 <div class="llm-settings">
 
-                    <label class="switch">
-                        <input title="LocalLLMToggle" type="checkbox" id="LocalLLMToggle" class="llm-input"
-                               data-type="LocalLLMToggle">
-                        <span class="slider round"></span>
-                    </label>
+                    <div class="toggle-container">
+
+                        <label class="switch">
+                            <input title="LocalLLMToggle" type="checkbox" id="LocalLLMToggle" class="llm-input"
+                                   data-type="LocalLLMToggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <h5>Local LLM</h5>
+                    </div>
+
                     <div class="settings-content ">
 
                         <h4>Local LLM Settings</h4>
@@ -153,15 +161,17 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="settings-box">
                 <div class="llm-settings">
-
-                    <label class="switch">
-                        <input title="RemoteLLMToggle" type="checkbox" id="RemoteLLMToggle" class="llm-input"
-                               data-type="RemoteLLMToggle" checked>
-                        <span class="slider round"></span>
-                    </label>
+                    <div class="toggle-container">
+                        <label class="switch">
+                            <input title="RemoteLLMToggle" type="checkbox" id="RemoteLLMToggle" class="llm-input"
+                                   data-type="RemoteLLMToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <h5>Remote LLM</h5>
+                    </div>
                     <div class="settings-content ">
 
                         <h4>Remote LLM API Settings</h4>
@@ -223,10 +233,10 @@
                     </button>
                 </div>
             </div>
-           
+
 
         </div>
-        
+
     </div>
 
     <div id="tooltip">
