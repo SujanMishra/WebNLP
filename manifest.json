@@ -29,7 +29,12 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": [ "main.html" ],
+            "resources": [ 
+                "main.html",
+                "InfoBubble.html",
+                "infoBubble.css",
+                "infoBubble.js" ],
+            
             "matches": [ "<all_urls>" ]
         }
     ]

@@ -1,0 +1,31 @@
+
+.body{
+    background-color: transparent;
+    margin: 0;
+}
+/* Info bubble container */
+.info-bubble {
+    display: block;
+    position: absolute;
+    background-color: rgba(25, 50, 50, 0.9);
+    border: 1px solid white;
+    padding: 10px;
+    border-radius: 25px;
+    box-shadow: 0 2px 5px rgba(0, 150, 0, 0.2);
+    z-index: 99999; /* Ensure the bubble appears on top of other content */
+    height: auto;
+    width: 200px;
+}
+
+/* Info bubble content */
+.info-content {
+    color:white;  
+    height: 100%;
+    width: 100%;
+    align-content: center;
+    align-items: center;
+    overflow-y: auto; 
+    overflow-x: hidden; 
+}
+
+

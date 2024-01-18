@@ -85,15 +85,17 @@
             <div class="settings-box">
 
                 <div class="llm-settings">
+
                     <div class="toggle-container">
                         <label class="switch">
                             <input title="CustomLLMToggle" type="checkbox" id="CustomLLMToggle" class="llm-input"
                                    data-type="CustomLLMToggle">
                             <span class="slider round"></span>
                         </label>
-                        <h5> Custom LLM </h5>
+                        <h5>Custom LLM <i class="info-icon">i</i></h5>
+
                     </div>
-                    
+
                     <div class="settings-content ">
                         <h4>Custom LLM Settings</h4>
                         <div class="setting settings-content">
@@ -134,7 +136,7 @@
                                    data-type="LocalLLMToggle">
                             <span class="slider round"></span>
                         </label>
-                        <h5>Local LLM</h5>
+                        <h5>Local LLM<i class="info-icon">i</i></h5>
                     </div>
 
                     <div class="settings-content ">
@@ -170,7 +172,7 @@
                                    data-type="RemoteLLMToggle" checked>
                             <span class="slider round"></span>
                         </label>
-                        <h5>Remote LLM</h5>
+                        <h5>Remote LLM<i class="info-icon">i </i></h5>
                     </div>
                     <div class="settings-content ">
 
@@ -239,9 +241,7 @@
 
     </div>
 
-    <div id="tooltip">
-        <div id="tooltipContent"></div>
-    </div>
+
 </div>
 
 <script src="./main.js"></script>
@@ -250,6 +250,6 @@
 <script src="./logger.js"></script>
 <script src="./RemoteServer.js"></script>
 <script src="./HttpService.js"></script>
-
+<script src="./InfoBubble.js"></script>
 </body>
 </html>

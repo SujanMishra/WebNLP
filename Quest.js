@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         topicNameInput: document.querySelector("#TopicNameInput"),
         chatContainer: document.querySelector("#ChatContainer"), 
         historyContainer: document.querySelector("#HistoryContainer"),
-        ask: document.querySelector(".Container#Ask"), // Only ID selector as there's no class
+        ask: document.querySelector("#Ask"), // Only ID selector as there's no class
         askInput: document.querySelector("#AskInput"),
         sendButtonQuestion: document.querySelector("#SendButtonQuestion")
     };

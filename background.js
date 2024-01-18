@@ -2,16 +2,16 @@ chrome.action.onClicked.addListener((tab) => {
     // Check if the current tab's URL is one where the extension should not run
     if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://') || tab.url.startsWith('https://chrome.google.com/webstore')) {
         // Redirect to a default webpage and remember this tab ID
-        chrome.tabs.update(tab.id, { url: 'https://www.google.com/' });
-        chrome.storage.local.set({ pendingTabId: tab.id });
+        chrome.tabs.update(tab.id, {url: 'https://www.google.com/'}).then(r =>{}); 
+        chrome.storage.local.set({pendingTabId: tab.id}).then(r =>{}); 
     } else {
         // Toggle the state and execute the appropriate function based on the new state
         chrome.storage.local.get('isExtensionOn', (data) => {
             let currentState = data.isExtensionOn || false;
             let newState = !currentState;
-            chrome.storage.local.set({ isExtensionOn: newState });
-
-            chrome.tabs.sendMessage(tab.id, { text: 'toggle' });
+            chrome.storage.local.set({isExtensionOn: newState}).then(r =>{}); 
+            console.log("Sending message to tab:", tab.id);
+            chrome.tabs.sendMessage(tab.id, {text: 'toggle'}).then(r =>{}); 
 
         });
     }
@@ -24,8 +24,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             if (result.pendingTabId === tabId) {
                 // This is the tab we were waiting for
                 // It's now fully loaded, so run the extension
-                chrome.tabs.sendMessage(tabId, { text: 'toggle' });
-                chrome.storage.local.remove(['pendingTabId']);
+                chrome.tabs.sendMessage(tabId, {text: 'toggle'}).then(r =>{}); 
+                chrome.storage.local.remove(['pendingTabId']).then(r => {});
             }
         });
     }
@@ -45,8 +45,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 function removeIFrame(tabId) {
-    chrome.tabs.sendMessage(tabId, { message: 'remove_iframe' });
-    chrome.storage.local.set({ isExtensionOn: false });
+    chrome.tabs.sendMessage(tabId, {message: 'remove_iframe'}).then(r =>{}); 
+    chrome.storage.local.set({isExtensionOn: false}).then(r =>{}); 
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {

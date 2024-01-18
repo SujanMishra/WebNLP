@@ -23,17 +23,17 @@
             document.body = document.createElement('body');
         }
 
-        // we create a flex container to hold everuthing
+        // we create a flex container to hold everything
         flexContainer = document.createElement('div');
         flexContainer.id = 'myExtensionFlexContainer';
         flexContainer.style.display = 'flex';
-        flexContainer.style.width = '100vw';
-        flexContainer.style.height = '100vh';
-
+        flexContainer.style.width = '100%';
+        flexContainer.style.height = '100%';
+        
         // we capture original tab content 
         originalContent = document.createElement('div');
         originalContent.id = 'myExtensionOriginalContent';
-        originalContent.style.flex = '1';
+        originalContent.style.flex = '3';
         originalContent.style.overflow = 'auto';
         originalContent.style.border = '2px solid #555';
 
@@ -67,7 +67,7 @@
         handle.style.height = '100vh';
         handle.style.backgroundColor = HandleBackgroundColor;
         handle.style.cursor = 'col-resize';
-        handle.style.flexShrink = 0;
+        handle.style.flexShrink = '0';
         handle.style.zIndex = '9999'; // Ensure it's above other elements
 
         // its important the order of following for handle to come in center of both original and extention 
@@ -77,10 +77,7 @@
 
         // finally we will add all the composition to body of original tab 
         document.body.appendChild(flexContainer);
-
-        // set 25% to our extention for initial load
-        setSplit(window.innerWidth * .75);
-
+        
         // Add event listener for window resize
         window.addEventListener('resize', handleWindowResize, false);
         // we only care for mouse event on  handle
@@ -126,11 +123,15 @@
             const newWidthIframe = window.innerWidth - currentX;
 
             if (newWidthOriginal >= 0 && newWidthIframe >= 0) {
-                originalContent.style.flex = `0 0 ${newWidthOriginal}px`;
-                iframeContainer.style.flex = `0 0 ${newWidthIframe}px`;
+                originalContent.style.flex = '3'; // Maintain the original ratio
+                iframeContainer.style.flex = '1'; // Maintain the iframe ratio
+
+                originalContent.style.flexBasis = `${newWidthOriginal}px`;
+                iframeContainer.style.flexBasis = `${newWidthIframe}px`;
             }
         }
     }
+
 
 
     function handleMouseUp() {
@@ -151,24 +152,28 @@
         setSplit(newSplit);
     }
 
+
     function setSplit(splitPosition) {
+        // handleWidth accounts for the width of the resizing handle
         const handleWidth = handle.offsetWidth;
-        const maxWidth = window.innerWidth - handleWidth;
 
-        const newOffset = splitPosition - handleWidth / 2;
-        const newLeft = splitPosition - handleWidth;
+        // Calculate the width for originalContent and iframeContainer
+        const newWidthOriginal = splitPosition - handleWidth / 2;
+        const newWidthIframe = window.innerWidth - newWidthOriginal - handleWidth;
 
-        handle.style.left = newLeft + 'px';
-        originalContent.style.width = newOffset + 'px';
-        iframeContainer.style.width = maxWidth - newOffset + 'px';
-        if (mask) {
-            mask.style.width = iframeContainer.style.width;
+        if (newWidthOriginal >= 0 && newWidthIframe >= 0) {
+            // Set the left position of the handle
+            handle.style.left = `${newWidthOriginal}px`;
+
+            // Update the widths of the originalContent and iframeContainer
+            originalContent.style.width = `${newWidthOriginal}px`;
+            iframeContainer.style.width = `${newWidthIframe}px`;
+
+            // Optional: Adjust the scale of the original content
+            const scaleFactor = originalContent.offsetWidth / originalContent.scrollWidth;
+            originalContent.style.transform = `scale(${scaleFactor})`;
+            originalContent.style.transformOrigin = 'top left';
         }
-
-        // Adjust the font size of the original content to fit within its container
-        const scaleFactor = originalContent.offsetWidth / originalContent.scrollWidth;
-        originalContent.style.transform = `scale(${scaleFactor})`;
-        originalContent.style.transformOrigin = 'top left';
     }
 
     function removeIFrame() {
@@ -215,6 +220,7 @@
     }
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        console.log("Message received:", request);
         if (request.text === 'toggle') {
             chrome.storage.local.get('isExtensionOn', (data) => {
                 if (data.isExtensionOn) {
