@@ -71,7 +71,7 @@ function logMessage(message, isError = false) {
 
 function createLogUI() {
     if (!logContainer) {
-        const tweaksTab = document.getElementById('Tweaks'); // Adjust ID if necessary
+        const tweaksTab = document.getElementById('tabContentTweaks'); 
 
         // Logger wrapper
         logContainer = document.createElement('div');

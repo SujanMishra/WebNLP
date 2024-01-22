@@ -29,11 +29,19 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": [ 
+            "resources":
+            [ 
                 "main.html",
                 "InfoBubble.html",
                 "infoBubble.css",
-                "infoBubble.js" ],
+                "infoBubble.js" ,
+                "logger.js",
+                "RemoteServer.js",
+                "HttpService.js",
+                "Tweaks.js",
+                "Quest.js"
+                
+            ],
             
             "matches": [ "<all_urls>" ]
         }

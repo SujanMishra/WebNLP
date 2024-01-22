@@ -1,6 +1,6 @@
 (function () {
 
-    const separation = 1;
+    
     let iframe;
     let iframeContainer;
     let originalContent;
@@ -8,7 +8,7 @@
     let handle;
     let isDragging = false;
     let startX = 0;
-    let startOffset = 0;
+    
     let mask;
     let HandleBackgroundColor = 'rgb(50, 50, 50)';
 
