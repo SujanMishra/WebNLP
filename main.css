@@ -24,7 +24,7 @@ html, body {
     width: 100%;
     margin: 0;
     padding: 0;
-   
+
 }
 
 .tabs {
@@ -478,9 +478,10 @@ input[type="file"] {
 .settings-box button {
     margin-top: 2%;
 }
+
 .toggle-container {
     display: flex;
-    align-items: center;   
+    align-items: center;
     height: 20px;
 }
 
@@ -590,6 +591,30 @@ input:checked + .slider:before {
     pointer-events: all;
 }
 
+.settings-SubContent {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.settings-SubContent label {
+
+    justify-content: space-evenly;
+}
+
+
+.settings-SubContent input {
+    flex-grow: 1;
+    pointer-events: all;
+}
+
+.settings-SubContent.button-group {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .disabled-content {
     opacity: 0.5; /* Grey out the entire settings content */
 }
@@ -598,7 +623,7 @@ input:checked + .slider:before {
     pointer-events: none;
 }
 
-.CustomNameSelector {
+#CustomNameSelector {
     display: none;
     justify-content: center;
     align-items: center;
@@ -618,19 +643,21 @@ input:checked + .slider:before {
     height: 25px;
     align-items: center;
 }
+
 /* Info Bubble */
 .info-icon {
     display: inline-block;
     width: 20px;
     height: 20px;
-    background-color: rgb(0,150,150);
+    background-color: rgb(0, 150, 150);
     color: white;
     text-align: center;
     line-height: 20px;
     border-radius: 50%;
-    margin-left: 5px; 
-    cursor: pointer; 
+    margin-left: 5px;
+    cursor: pointer;
 }
+
 /* Style for the iframe itself */
 .info-bubble-iframe {
     border: none; /* Remove the default iframe border */

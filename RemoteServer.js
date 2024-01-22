@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function () {
         remoteModel: document.querySelector('#RemoteModel'),
         remoteLLMServerChatEndpoint: document.querySelector('#RemoteLLMServerChatEndpoint'),
         ApiKey: document.querySelector('#ApiKey'),
+        customNameSelector: document.querySelector('#CustomNameSelector'),
+        newModelOptionsHolder: document.querySelector('#NewModelOptionsHolder'),
     };
 
 
@@ -64,16 +66,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+
     elements.ApiKey.addEventListener('change', function () {
         try {
-            const selected = elements.llmServiceElement.value;
-            if (selected) {
-                AddApiKey(selected, true);
+            const selectedModelValue = elements.remoteModel.value;
+            if (selectedModelValue) {
+                const selectedModel = JSON.parse(selectedModelValue).model;
+
+                AddOrUpdateApiKey(selectedModel, true, elements.ApiKey);
             }
         } catch (e) {
             logMessage((e), true);
         }
     });
+
 
 // listen for changes on the dropdown
     elements.llmServiceElement.addEventListener('change', function () {
@@ -98,26 +104,31 @@ document.addEventListener('DOMContentLoaded', function () {
             model: 'gpt-4-1106-preview',
             compatibleEndpoint: '/v1/assistants',
             contextWindow: 128000,
+            apiKey: "not set"
         },
         'gpt-4-1106-preview (chat)': {
             model: 'gpt-4-1106-preview',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 128000,
+            apiKey: "not set"
         },
         'gpt-4-vision-preview (chat)': {
             model: 'gpt-4-vision-preview',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 128000,
+            apiKey: "not set"
         },
         'gpt-4 (chat)': {
             model: 'gpt-4',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 8192,
+            apiKey: "not set"
         },
         'gpt-4-32k (chat)': {
             model: 'gpt-4-32k',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 32768,
+            apiKey: "not set"
         },
 
         // GPT-3.5 Models
@@ -125,26 +136,31 @@ document.addEventListener('DOMContentLoaded', function () {
             model: 'gpt-3.5-turbo-1106',
             compatibleEndpoint: '/v1/assistants',
             contextWindow: 16385,
+            apiKey: "not set"
         },
         'gpt-3.5-turbo-1106 (chat)': {
             model: 'gpt-3.5-turbo-1106',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 16385,
+            apiKey: "not set"
         },
         'gpt-3.5-turbo (chat)': {
             model: 'gpt-3.5-turbo',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 4096,
+            apiKey: "not set"
         },
         'gpt-3.5-turbo-16k (chat )': {
             model: 'gpt-3.5-turbo-16k',
             compatibleEndpoint: '/v1/chat/completions',
             contextWindow: 16385,
+            apiKey: "not set"
         },
         'gpt-3.5-turbo-instruct (legacy completions)': {
             model: 'gpt-3.5-turbo-instruct',
             compatibleEndpoint: '/v1/completions',
             contextWindow: 4096,
+            apiKey: "not set"
         },
         // ... other models as needed  i.e dalle etc ...
     };
@@ -154,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
 
             addModelOptionDropdown(OpenAIModels);
-            AddApiKey(this.value)
+            AddOrUpdateApiKey(this.value)
             saveAllDataToDB();
         } catch (e) {
             logMessage((e), true);
@@ -163,77 +179,108 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // dynamic model option addition 
+
+
     function addModelOptionDropdown(aiModels) {
         try {
-
             elements.remoteModel.innerHTML = '';
 
+            let firstModelSet = false;
+
             Object.entries(aiModels).forEach(([model, details]) => {
-                let newOption = document.createElement("ModelOption");
+                let newOption = document.createElement("option");
                 newOption.text = model;
                 newOption.value = JSON.stringify(details);
                 elements.remoteModel.add(newOption);
+                ApiKeys[model] = details.apiKey.value;
+                // Set the first model as the default selected option
+                if (!firstModelSet) {
+                    elements.remoteModel.value = newOption.value;
+                    elements.remoteLLMServerChatEndpoint.value = details.compatibleEndpoint;
+                    elements.ApiKey.value = details.apiKey;
+                    elements.ApiKey.value = ApiKeys[model] || details.apiKey;
+                    firstModelSet = true;
+                }
             });
-
 
             let newModelOption = document.createElement("option");
             newModelOption.text = 'newModel';
             newModelOption.value = '';
             elements.remoteModel.add(newModelOption);
 
-            elements.remoteModel.addEventListener('change', function () {
-                if (this.value !== 'newModel') {
-                    let selectedModel = JSON.parse(this.value);
-                    elements.remoteLLMServerChatEndpoint = selectedModel.endpoint;
-
+            // Define handleModelChange inside addModelOptionDropdown to create a closure
+            function handleModelChange() {
+                let selectedOption = elements.remoteModel.options[elements.remoteModel.selectedIndex];
+                let selectedText = selectedOption.text;
+                let selectedValue = elements.remoteModel.value;
+                elements.newModelOptionsHolder.innerHTML = '';
+                if (selectedText !== 'newModel') {
+                    let selectedModel = JSON.parse(selectedValue);
+                    elements.remoteLLMServerChatEndpoint.value = selectedModel.compatibleEndpoint;
+                    elements.ApiKey.value = ApiKeys[selectedModel.model] || selectedModel.apiKey;
                 } else {
-
                     addNewModel(aiModels);
                 }
+            }
 
-                if (window.httpService) {
-                    window.httpService.updateRequestHandler();
-                }
-            });
+
+            // Attach the event listener for handling model change
+            elements.remoteModel.addEventListener('change', handleModelChange);
         } catch (e) {
             logMessage((e), true);
 
         }
     }
 
+
 // dynamic model addition 
     function addNewModel(aiModels) {
-
         try {
+            elements.newModelOptionsHolder.innerHTML = ''
+            // Define the HTML for the new model form with appropriate classes
+            elements.newModelOptionsHolder.innerHTML = `
 
-            // add new div with text inputs for model, compatibleEndpoint, contextWindow
-            let newModelDiv = document.createElement("div");
-            newModelDiv.innerHTML = `
-                  <input id="newModelName" placeholder="Model name">
-                  <input id="newModelEndpoint" placeholder="Compatible endpoint">
-                  <input id="newModelContextWindow" placeholder="Context window">
-                  <button id="newModelAddButton">OK</button>`;
+                <div id="newModelDiv" class=" settings-content" >
+                    <div class="settings-SubContent">
+                        <label for="newModelName">Model Name: </label>
+                        <input id="newModelName" placeholder="Model name " class="llm-input">
+                    </div>
+                    <div class="settings-SubContent">
+                        <label for="newModelEndpoint">Endpoint: </label>
+                        <input id="newModelEndpoint" placeholder="Compatible endpoint " class="llm-input">
+                    </div>
+                    <div class="settings-SubContent">
+                        <label for="newModelContextWindow">Context Window: </label>
+                        <input id="newModelContextWindow" placeholder="Context window " class="llm-input">
+                    </div>
+                    <div class="settings-SubContent">
+                        <label for="newModelApiKey">API Key: </label>
+                        <input id="newModelApiKey" placeholder="API Key" class="llm-input">
+                    </div>
+                    <div class="settings-SubContent button-group">
+                        <button id="newModelAddButton" type="button" >OK </button>
+                        <button id="newModelCancelButton"  type="button">Cancel </button>
+                    </div>
+                </div>`;
 
-            document.body.appendChild(newModelDiv);
-
+            // Event listener for 'OK' button
             document.getElementById('newModelAddButton').addEventListener('click', function () {
                 let newModelName = document.getElementById('newModelName').value;
+                let newModelEndpoint = document.getElementById('newModelEndpoint').value;
+                let newModelContextWindow = parseInt(document.getElementById('newModelContextWindow').value, 10);
+                let newModelApiKey = document.getElementById('newModelApiKey').value;
 
-                // If a model with the same name already exists, alert the user and return early
                 if (aiModels.hasOwnProperty(newModelName)) {
                     alert(`The model ${newModelName} already exists. Please choose a different name.`);
                     return;
                 }
 
-                let newModelEndpoint = document.getElementById('newModelEndpoint').value;
-                let newModelContextWindow = parseInt(document.getElementById('newModelContextWindow').value, 10);
-
-
-                // Add new model details to AIModels
+                // Add new model details to aiModels
                 aiModels[newModelName] = {
                     model: newModelName,
                     compatibleEndpoint: newModelEndpoint,
-                    contextWindow: newModelContextWindow
+                    contextWindow: newModelContextWindow,
+                    apiKey: newModelApiKey
                 };
 
                 // Add new model to dropdown
@@ -242,14 +289,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 newOption.value = JSON.stringify(aiModels[newModelName]);
                 elements.remoteModel.add(newOption);
                 elements.remoteModel.value = newOption.value;
-                let event = new Event('change');
-                elements.remoteModel.dispatchEvent(event);
-                // Remove the form inputs
-                document.body.removeChild(newModelDiv);
+                elements.remoteModel.dispatchEvent(new Event('change'));
+
+                elements.newModelOptionsHolder.innerHTML = ''; // Remove the form
             });
+
+            // Event listener for 'Cancel' button
+            document.getElementById('newModelCancelButton').addEventListener('click', function () {
+
+                if (elements.remoteModel.options.length > 1) {
+                    elements.remoteModel.selectedIndex = 0;
+                    elements.newModelOptionsHolder.innerHTML = ''; // Remove the form
+                } else {
+                    // Handle the case when 'newModel' is the only option
+                    alert("Please add a new model or select a different LLM provider.");
+                }
+
+
+            });
+
         } catch (e) {
             logMessage((e), true);
-
         }
     }
 
@@ -265,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
 
             addModelOptionDropdown(AzureAIModels);
-            AddApiKey(this.value)
+            AddOrUpdateApiKey(this.value)
             saveAllDataToDB();
         } catch (e) {
             logMessage((e), true);
@@ -284,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
 
             addModelOptionDropdown(AnyScaleAIModels);
-            AddApiKey(this.value)
+            AddOrUpdateApiKey(this.value)
             saveAllDataToDB();
         } catch (e) {
             logMessage((e), true);
@@ -293,8 +353,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // store API Keys
 
-    function AddApiKey(key, override = false) {
-        let apiKeyValue = elements.ApiKey && elements.ApiKey.value;
+    function AddOrUpdateApiKey(key, override = false, apiKey = elements.ApiKey) {
+        let apiKeyValue = apiKey && apiKey.value;
         if (!apiKeyValue || apiKeyValue.trim() === '') {
             alert('API key is empty or null');
             return;
@@ -318,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleANewProvider() {
         const newName = elements.llmServiceElement.value;
         addNewModel(dynamicModels, newName);
-        AddApiKey(this.value);
+        AddOrUpdateApiKey(this.value);
         saveAllDataToDB();
     }
 
@@ -397,4 +457,14 @@ document.addEventListener('DOMContentLoaded', function () {
         window.httpService = new HttpService();
     }
 
+    function populateLLMServices() {
+
+        // Set the first service as the default
+        if (elements.llmServiceElement.options.length > 0) {
+            elements.llmServiceElement.value = elements.llmServiceElement.options[0].value;
+            elements.llmServiceElement.dispatchEvent(new Event('change'));
+        }
+    }
+
+    populateLLMServices();
 });
