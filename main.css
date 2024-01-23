@@ -392,21 +392,32 @@ input[type="file"] {
 .user-message-blob {
     color: #fff;
     background-color: #222;
-    border-radius: 0;
+    border-radius: 10px;
     padding: 8px 12px;
     margin: 1% auto 1% 0;
-    max-width: 80%;
+    max-width: 90%;
     border: 1px solid #ccc;
+    max-height: 300px; /* Set the maximum height for messages */
+    overflow-y: auto; /* Enable vertical scrolling when content exceeds max-height */
 }
 
 .server-message-blob {
     color: #fff;
     background-color: #444;
-    border-radius: 0;
+    border-radius: 10px;
     padding: 8px 12px;
     margin: 1% 0 1% auto;
-    max-width: 80%;
+    max-width: 90%;
     border: 1px solid #555;
+    max-height: 300px; /* Set the maximum height for messages */
+    overflow-y: auto; /* Enable vertical scrolling when content exceeds max-height */
+}
+.code-block {
+    max-height: 200px; /* Adjust this value as needed */
+    overflow: auto; /* Adds a scrollbar if content overflows */
+    white-space: pre-wrap; /* Ensures that code wraps and doesn't just horizontally scroll */
+    word-break: break-word; /* Prevents long strings from overflowing */
+    background-color:black;
 }
 
 

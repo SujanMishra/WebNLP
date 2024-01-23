@@ -11,7 +11,7 @@ class Topic {
         this.metadata = {
             name: name
         };
-        
+        this.DetectLang = new DetectLanguage();
     }
 
     addMessage(message, type) {
@@ -26,7 +26,6 @@ class Topic {
     // Method to generate a message bubble
     generateMessageBubble(message) {
         const messageDiv = document.createElement("div");
-        messageDiv.textContent = message.text;
 
         // Apply different styles based on the sender
         if (message.type === SenderType.USER) {
@@ -34,8 +33,59 @@ class Topic {
         } else if (message.type === SenderType.SERVER) {
             messageDiv.classList.add('server-message-blob');
         }
+
+        const chunks = this.DetectLang.splitIntoLanguageChunks(message.text);
+        chunks.forEach(chunk => {
+            if (chunk.language !== 'Unknown') {
+                // Handle code chunk
+                const codeBlock = document.createElement("pre");
+                codeBlock.classList.add('code-block');
+
+                const codeText = document.createElement("code");
+                codeText.textContent = chunk.text.trim();
+
+                if (chunk.language) {
+                    codeText.classList.add(chunk.language);
+                    hljs.highlightElement(codeText);
+                } else {
+                    hljs.highlightBlock(codeText);
+                }
+
+                codeBlock.appendChild(codeText);
+                const copyButton = document.createElement("button");
+                copyButton.textContent = "Copy";
+
+
+
+                copyButton.addEventListener("click", () => {
+                    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                        chrome.tabs.sendMessage(tabs[0].id, {action: "copy", text: codeText.textContent}, response => {
+                            if (response.success) {
+                                console.log("Text copied successfully");
+                            } else {
+                                console.error("Failed to copy text", response.error);
+                            }
+                        });
+                    });
+                    console.log("Copy message sent:", codeText.textContent);
+                });
+
+
+
+
+                codeBlock.appendChild(copyButton);
+                messageDiv.appendChild(codeBlock);
+            } else {
+                // Handle plain text chunk
+                const messageText = document.createElement("p");
+                messageText.innerHTML = chunk.text.replace(/\n/g, '<br>');
+                messageDiv.appendChild(messageText);
+            }
+        });
+        console.log("messageDiv:", messageDiv);
         return messageDiv;
     }
+
 
     // Method to display an entire topic in history container
     display(historyContainer) {
@@ -57,14 +107,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const elements = {
         newTopicButton: document.querySelector("#NewTopicButton"),
-        topicContainer: document.querySelector("#TopicContainer"), 
-        topicList: document.querySelector("#TopicList"), 
+        topicContainer: document.querySelector("#TopicContainer"),
+        topicList: document.querySelector("#TopicList"),
         scrollLeftButton: document.querySelector("#ScrollLeftButton"),
         scrollRightButton: document.querySelector("#ScrollRightButton"),
         topicOptions: document.querySelector("#TopicOptions"),
         createTopicButton: document.querySelector("#CreateTopicButton"),
         topicNameInput: document.querySelector("#TopicNameInput"),
-        chatContainer: document.querySelector("#ChatContainer"), 
+        chatContainer: document.querySelector("#ChatContainer"),
         historyContainer: document.querySelector("#HistoryContainer"),
         ask: document.querySelector("#Ask"), // Only ID selector as there's no class
         askInput: document.querySelector("#AskInput"),
@@ -78,11 +128,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let topics = [];
     let currentTopic = null;
     let fsHandle; // File System Handle
-    
+
     // Event Listeners
     elements.newTopicButton.addEventListener("click", openTopicOptions);
     elements.scrollLeftButton.addEventListener("click", scrollTopicListLeft);
-    elements. scrollRightButton.addEventListener("click", scrollTopicListRight);
+    elements.scrollRightButton.addEventListener("click", scrollTopicListRight);
     elements.createTopicButton.addEventListener("click", createTopic);
     elements.sendButtonQuestion.addEventListener("click", sendQuestion);
     elements.askInput.addEventListener("keydown", sendQuestion);
@@ -163,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Send Question
     function sendQuestion(event) {
-      
+
         if ((event.key === "Enter" && !event.shiftKey) || event.target === elements.sendButtonQuestion) {
             event.preventDefault();
             const question = elements.askInput.value.trim();
@@ -178,8 +228,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     logMessage("You should have  selected a topic for this question , question is added to last active topic!.", false);
                 } else {
                     // create a new topic with a guid value if the topics array is empty
-                    const guid = function() {
-                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const guid = function () {
+                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                             let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
                             return v.toString(16);
                         });
@@ -189,15 +239,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     logMessage("Please add a topic name a random topic was generated for this question !.", false);
                     topics.push(currentTopic);
                 }
-               
+
                 return;
             }
 
             currentTopic.addMessage(question, SenderType.USER);
             currentTopic.display(elements.historyContainer);
+            console.log("message sent to display ", question);
 
-            elements.askInput.value = "";
- 
+            elements.ask.style.height = 'auto'; // Set back to auto height
+            elements.askInput.style.height = 'auto'; // Set back to auto height
+            elements.askInput.value = ""; // Clear the input field
+
             window.httpService.sendHttpRequest(currentTopic, question);
 
         }
@@ -235,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const availableWidth = elements.topicContainer.offsetWidth - (elements.scrollLeftButton.offsetWidth + elements.scrollRightButton.offsetWidth);
         const maxScroll = elements.topicList.offsetWidth - availableWidth;
         const newScroll = Math.max(scrollAmount - availableWidth, 0);
-        elements. topicList.style.transform = `translateX(-${newScroll}px)`;
+        elements.topicList.style.transform = `translateX(-${newScroll}px)`;
         if (newScroll === 0) {
             elements.scrollLeftButton.classList.add("disabled");
         }
@@ -259,6 +312,18 @@ document.addEventListener('DOMContentLoaded', function () {
         elements.scrollLeftButton.classList.remove("disabled");
     }
 
+    elements.askInput.addEventListener('input', function () {
+        // Calculate the scroll height of the ask input element
+        const scrollHeight = this.scrollHeight;
+
+        // Set the height of the ask div and ask-input to be the minimum of scroll height and the maximum height
+        const maxHeight = 150; // Change this to your desired maximum height
+        const newHeight = Math.min(scrollHeight, maxHeight) + 'px';
+        elements.ask.style.height = newHeight;
+        elements.askInput.style.height = newHeight;
+    });
+
+
     // Adjust Container Heights
     function adjustContainerHeights() {
         const windowHeight = window.innerHeight;
@@ -268,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const containerHeight = windowHeight - (newTopicButtonHeight + askHeight + topicContainerHeight);
         const adjustedContainerHeight = containerHeight - containerHeight * 0.4;
-        elements. chatContainer.style.height = adjustedContainerHeight + "px";
+        elements.chatContainer.style.height = adjustedContainerHeight + "px";
 
         const historyContainerHeight = adjustedContainerHeight - askHeight;
         elements.historyContainer.style.height = historyContainerHeight + "px";
@@ -327,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data: dataToAutoSave
     };
 
-    
+
     function loadDataFromDb(key) {
         const message = {
             type: 'loadDataFromDB',
@@ -335,9 +400,9 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         window.postMessage(message, '*');
     }
-    
+
     loadDataFromDb('topics');
-   
+
     // Load topics on page load
     window.addEventListener('message', function (event) {
         if (event.data && event.data.type === 'dataLoadedFromDb') {
@@ -345,13 +410,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = event.data.data;
 
             if (key === 'topics') {
-               
+
                 populateTopicList(data);
             }
         }
     });
-    
-    if (!window.httpService){
+
+    if (!window.httpService) {
         window.httpService = new HttpService();
     }
 

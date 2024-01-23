@@ -17,6 +17,9 @@ chrome.action.onClicked.addListener((tab) => {
     }
 });
 
+// Listener for messages from content scripts
+
+
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete') {

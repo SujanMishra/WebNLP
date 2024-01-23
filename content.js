@@ -1,6 +1,6 @@
 (function () {
 
-    
+
     let iframe;
     let iframeContainer;
     let originalContent;
@@ -8,7 +8,7 @@
     let handle;
     let isDragging = false;
     let startX = 0;
-    
+
     let mask;
     let HandleBackgroundColor = 'rgb(50, 50, 50)';
 
@@ -29,7 +29,7 @@
         flexContainer.style.display = 'flex';
         flexContainer.style.width = '100%';
         flexContainer.style.height = '100%';
-        
+
         // we capture original tab content 
         originalContent = document.createElement('div');
         originalContent.id = 'myExtensionOriginalContent';
@@ -77,7 +77,7 @@
 
         // finally we will add all the composition to body of original tab 
         document.body.appendChild(flexContainer);
-        
+
         // Add event listener for window resize
         window.addEventListener('resize', handleWindowResize, false);
         // we only care for mouse event on  handle
@@ -89,7 +89,7 @@
             handle.style.backgroundColor = 'rgb(50, 100, 200)';
         });
         // remove upon mouse out hover effect
-        handle.addEventListener('mouseout', function() {
+        handle.addEventListener('mouseout', function () {
             handle.style.backgroundColor = HandleBackgroundColor; // Revert to original color
         });
 
@@ -131,7 +131,6 @@
             }
         }
     }
-
 
 
     function handleMouseUp() {
@@ -230,7 +229,25 @@
                 }
             });
         }
+
     });
 
+
+
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+       // console.log("Message received Content script :", request);
+        if (request.action === "copy") {
+            navigator.clipboard.writeText(request.text)
+                .then(() => {
+                   // console.log('Text copied to clipboard');
+                    sendResponse({ success: true });
+                })
+                .catch(err => {
+                   // console.error('Error copying text: ', err);
+                    sendResponse({ success: false, error: err });
+                });
+            return true; // Keep the message channel open for sendResponse
+        }
+    });
 
 })();

@@ -8,7 +8,9 @@
         "activeTab",
         "scripting",
         "downloads",
-        "storage"
+        "storage",
+        "clipboardRead",
+        "clipboardWrite"
 
     ],
     "action": {
@@ -30,7 +32,8 @@
     "web_accessible_resources": [
         {
             "resources":
-            [ 
+            [
+                "lib/underscore-umd.js",
                 "main.html",
                 "InfoBubble.html",
                 "infoBubble.css",
@@ -39,7 +42,9 @@
                 "RemoteServer.js",
                 "HttpService.js",
                 "Tweaks.js",
-                "Quest.js"
+                "Quest.js",
+                "detectLang.js"
+                
                 
             ],
             
