@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is a work in progress, with updates coming as I continue coding.
+This project is a work in progress, with updates coming as I continue .
 
 ## Main Ideas
 
@@ -12,7 +12,7 @@ My aim is to create a dynamic browser extension that leverages Natural Language 
 - **User-Friendly Integration**: An easy-to-use interface for adding new providers.
 - **Chat Interface**: An engaging and interactive chat functionality.
 - **Visual Scripting for RAG Pipeline & Agent Network**: A drag-and-drop interface for designing Retriever-Augmented Generation (RAG) Pipelines and managing agent networks, including nodes for managers, workers, etc.
-- **Provider Mix-and-Match**: Flexibility to assign different providers to different nodes, like using OpenAI for a manager and a local LLM for a worker.
+- **Provider Mix-and-Match**: Flexibility to assign different providers to different nodes, like using OpenAI for a manager and a local LLM for a other type .
 - **Shareable Configurations**: Enabling the sharing of Agent Networks and RAG Pipelines as simple JSON files.
 - **Cross-Platform Native App**: Developing native applications for Windows, Mac, and Linux to address cross-origin issues and enhance system app integration.
 
@@ -22,9 +22,9 @@ So far, I've developed:
 
 - **Sidebar Extension Interface**: Resembling Bing, with resizable UI components.
 - **HTTP & Remote Services Integration**: Establishing a foundation for service communication.
-- **Provider Selection**: Ability for users to choose from different LLM providers.
+- **Provider Selection**: Ability for users to choose from different LLM providers andcode path that allows such UI UX choice.
 - **Chat and History Functions**: Basic chat functionality along with conversation history tracking.
-- **Topic Creation**: Capability for users to create and manage topics within the chat.
+- **Topic Creation**: Capability for users to create and manage topics within the chat , search topic etc.
 - **Code-Friendly Features**: Syntax highlighting and language detection for code snippets.
 
 ## ToDo and WIP
