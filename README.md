@@ -29,7 +29,7 @@ So far, I've developed:
 
 ## ToDo and WIP
 
-- **Testing**: Comprehensive testing of all features, including cross-origin resource sharing (CORS) compatibility with OpenAI and Anyscale.
+- **Testing**: Comprehensive testing of all features, including cross-origin resource sharing (CORS) compatibility with OpenAI, Anyscale etc as required.
 - **Native Application Development**: If required, to handle CORS restrictions and manage local LLMs.
 - **Visual Scripting Implementation**: For both RAG pipelines and Agent Networks.
 - **Browser Compatibility**: Extending support to Firefox, addressing Manifest V2/V3 issues.
