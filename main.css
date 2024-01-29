@@ -417,9 +417,15 @@ input[type="file"] {
     overflow: auto; /* Adds a scrollbar if content overflows */
     white-space: pre-wrap; /* Ensures that code wraps and doesn't just horizontally scroll */
     word-break: break-word; /* Prevents long strings from overflowing */
-    background-color:black;
+   
 }
 
+.message-blob-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Add additional styling as needed */
+}
 
 /* Tweaks Styles */
 .tabContentTweaks {

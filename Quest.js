@@ -24,6 +24,7 @@ class Topic {
     }
 
     // Method to generate a message bubble
+
     generateMessageBubble(message) {
         const messageDiv = document.createElement("div");
 
@@ -34,55 +35,66 @@ class Topic {
             messageDiv.classList.add('server-message-blob');
         }
 
-        const chunks = this.DetectLang.splitIntoLanguageChunks(message.text);
-        chunks.forEach(chunk => {
-            if (chunk.language !== 'Unknown') {
-                // Handle code chunk
-                const codeBlock = document.createElement("pre");
-                codeBlock.classList.add('code-block');
+        this.DetectLang.splitIntoLanguageChunks(message.text).then(chunks => {
+            chunks.forEach(chunk => {
+                if (chunk.language !== 'Unknown') {
+                    const codeContainer = document.createElement("div");
+                    codeContainer.classList.add('code-container');
 
-                const codeText = document.createElement("code");
-                codeText.textContent = chunk.text.trim();
+                    const titleBar = document.createElement("div");
+                    titleBar.classList.add('message-blob-title-bar');
 
-                if (chunk.language) {
-                    codeText.classList.add(chunk.language);
-                    hljs.highlightElement(codeText);
-                } else {
-                    hljs.highlightBlock(codeText);
-                }
+                    const languageLabel = document.createElement("span");
+                    languageLabel.textContent = chunk.language;
+                    languageLabel.classList.add('language-label');
+                    titleBar.appendChild(languageLabel);
 
-                codeBlock.appendChild(codeText);
-                const copyButton = document.createElement("button");
-                copyButton.textContent = "Copy";
+                    const copyButton = document.createElement("button");
+                    copyButton.classList.add('copy-button');
+                    const icon = document.createElement("i");
+                    icon.classList.add('fas', 'fa-copy');
+                    const buttonText = document.createTextNode(" Copy Code");
+                    copyButton.appendChild(icon);
+                    copyButton.appendChild(buttonText);
 
-
-
-                copyButton.addEventListener("click", () => {
-                    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                        chrome.tabs.sendMessage(tabs[0].id, {action: "copy", text: codeText.textContent}, response => {
-                            if (response.success) {
-                                console.log("Text copied successfully");
-                            } else {
-                                console.error("Failed to copy text", response.error);
-                            }
+                    copyButton.addEventListener("click", () => {
+                        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                            chrome.tabs.sendMessage(tabs[0].id, {
+                                action: "copy",
+                                text: codeText.textContent
+                            }, response => {
+                                if (response.success) {
+                                    console.log("Text copied successfully");
+                                } else {
+                                    console.error("Failed to copy text", response.error);
+                                }
+                            });
                         });
                     });
-                    console.log("Copy message sent:", codeText.textContent);
-                });
 
+                    titleBar.appendChild(copyButton);
+                    codeContainer.appendChild(titleBar);
 
+                    const codeBlock = document.createElement("pre");
+                    codeBlock.classList.add('code-block');
 
+                    const codeText = document.createElement("code");
+                    codeText.textContent = chunk.text.trim();
+                    codeText.classList.add(chunk.language);
+                    hljs.highlightElement(codeText);
 
-                codeBlock.appendChild(copyButton);
-                messageDiv.appendChild(codeBlock);
-            } else {
-                // Handle plain text chunk
-                const messageText = document.createElement("p");
-                messageText.innerHTML = chunk.text.replace(/\n/g, '<br>');
-                messageDiv.appendChild(messageText);
-            }
+                    codeBlock.appendChild(codeText);
+                    codeContainer.appendChild(codeBlock);
+                    messageDiv.appendChild(codeContainer);
+                } else {
+                    const messageText = document.createElement("p");
+                    messageText.classList.add('plain-text');
+                    messageText.innerHTML = chunk.text.replace(/\n/g, '<br>');
+                    messageDiv.appendChild(messageText);
+                }
+            });
         });
-        console.log("messageDiv:", messageDiv);
+
         return messageDiv;
     }
 
@@ -213,47 +225,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Send Question
     function sendQuestion(event) {
+       // console.log('sendQuestion triggered by:', event.type);
 
-        if ((event.key === "Enter" && !event.shiftKey) || event.target === elements.sendButtonQuestion) {
+
+        let isEnterPressed = event.key === "Enter";
+        let isShiftPressed = event.shiftKey;
+        let isClickOnSendButton = event.type === "click" && event.target === elements.sendButtonQuestion;
+
+       // console.log("Is Enter pressed:", isEnterPressed);
+       // console.log("Is Shift pressed:", isShiftPressed);
+       // console.log("Is Click on Send Button:", isClickOnSendButton);
+        if (isShiftPressed) {
+
+            return;
+        }
+        if (isEnterPressed || isClickOnSendButton) {
+
             event.preventDefault();
             const question = elements.askInput.value.trim();
+            console.log('Question:', question);
+
+
             if (question === "") {
+               // console.log('No question entered');
                 return;
             }
-
-            if (!currentTopic) {
-                if (topics.length > 0) {
-                    // select the last topic if the topics array is not empty
-                    currentTopic = topics[topics.length - 1];
-                    logMessage("You should have  selected a topic for this question , question is added to last active topic!.", false);
-                } else {
-                    // create a new topic with a guid value if the topics array is empty
-                    const guid = function () {
-                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                            let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                            return v.toString(16);
-                        });
-                    };
-
-                    currentTopic = new Topic(guid());
-                    logMessage("Please add a topic name a random topic was generated for this question !.", false);
-                    topics.push(currentTopic);
-                }
-
-                return;
+            currentTopic =null;
+            if (topics.length > 0) {
+                currentTopic = topics[topics.length - 1];
+               // console.log('Last active topic selected:', currentTopic);
+                logMessage("You should have selected a topic for this question, question is added to last active topic!", false);
+            } else {
+                const topic = new Topic(createGuid());
+               // console.log('New topic created with GUID:', topic);
+                logMessage("Please add a topic name, a random topic was generated for this question!", false);
+                topics.push(topic);
+                currentTopic = topic;
             }
 
+           // console.log('Adding message to topic:', currentTopic);
             currentTopic.addMessage(question, SenderType.USER);
             currentTopic.display(elements.historyContainer);
-            console.log("message sent to display ", question);
 
-            elements.ask.style.height = 'auto'; // Set back to auto height
-            elements.askInput.style.height = 'auto'; // Set back to auto height
-            elements.askInput.value = ""; // Clear the input field
+            elements.ask.style.height = 'auto';
+            elements.askInput.style.height = 'auto';
+            elements.askInput.value = "";
 
+           // console.log('Sending HTTP request with topic and question');
             window.httpService.sendHttpRequest(currentTopic, question);
-
         }
+    }
+
+    function createGuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
 
     function logMessage(message, isError = false) {
