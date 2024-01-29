@@ -8,13 +8,14 @@
  */
 class HttpService {
     constructor() {
-        this.requestHandler = null;
+
         this.elements = this.refreshElements();
+        let llmSetting = null;
         this.updateRequestHandler();
         window.httpService = this;
     }
 
-     refreshElements() {
+    refreshElements() {
         return {
             historyContainer: document.querySelector('.llm-element#HistoryContainer'),
 
@@ -39,18 +40,10 @@ class HttpService {
     }
 
 
-
     updateRequestHandler() {
-        
-        let llmSetting = this.getLLMSetting(this.elements);
-        if (llmSetting && llmSetting.ApiKey && llmSetting.endpoint){
-            
-            this.requestHandler = new RequestHandler(llmSetting);
-            
-        }
-        else {
-            logMessage("LLM settings are not defined.", true);
-        }
+
+        this.llmSetting = this.getLLMSetting(this.elements);
+
     }
 
     getLLMSetting(elements) {
@@ -97,54 +90,31 @@ class HttpService {
     }
 
     sendHttpRequest(currentTopic, question) {
-        if (this.requestHandler) {
-            this.requestHandler.sendRequest(question)
-                .then(response => {
-                    currentTopic.addMessage(response, SenderType.SERVER);
-                    currentTopic.display(this.elements.historyContainer);
-                })
-                .catch(error => {
-                    logMessage(error, true);
-                });
-        } else {
-            logMessage("Request handler not initialized.", true);
-        }
-    }
-}
 
-class RequestHandler {
-    constructor(config) {
-        this.endpoint = config.endpoint;
-        this.ApiKey = config.ApiKey;
-        this.timeoutDelay = 100;
-    }
+        this.updateRequestHandler();
+        if (this.llmSetting && this.llmSetting.ApiKey && this.llmSetting.endpoint) {
 
-    timeout(delay, msg) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error(msg)), delay);
-        });
-    }
-
-    sendRequest(question) {
-        let headers = {"Content-Type": "application/json,charset=UTF-8"};
-        if (this.ApiKey) {
-            headers["Authorization"] = `Bearer ${this.ApiKey}`;
-        }
-
-        return Promise.race([
-            fetch(this.endpoint, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({'prompt': question})
-            }),
-            this.timeout(this.timeoutDelay, "LLM Chat Endpoint response timeout")
-        ])
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("LLM Chat Endpoint response was not successful.");
+            chrome.runtime.sendMessage({
+                action: "sendRequest",
+                requestData: {
+                    llmSetting: this.llmSetting,
+                    question: question,
                 }
-                return response.json();
+
+            }, response => {
+                if (response.error) {
+                    logMessage(response.error, true);
+                } else {
+                    currentTopic.addMessage(response.data, SenderType.SERVER);
+                    currentTopic.display(this.elements.historyContainer);
+                }
             });
+        } else {
+            logMessage("LLM settings are not defined.", true);
+        }
+
     }
 }
+
+
 

@@ -37,7 +37,7 @@ class Topic {
 
         this.DetectLang.splitIntoLanguageChunks(message.text).then(chunks => {
             chunks.forEach(chunk => {
-                if (chunk.language !== 'Unknown') {
+                if (chunk.language !== 'Unknown' && chunk.language !== 'noncode') {
                     const codeContainer = document.createElement("div");
                     codeContainer.classList.add('code-container');
 
