@@ -22,7 +22,7 @@ So far, I've developed:
 
 - **Sidebar Extension Interface**: Resembling Bing, with resizable UI components.
 - **HTTP & Remote Services Integration**: Establishing a foundation for service communication.
-- **Provider Selection**: Ability for users to choose from different LLM providers andcode path that allows such UI UX choice.
+- **Provider Selection**: Ability for users to choose from different LLM providers and code paths that allows such UI UX choice.
 - **Chat and History Functions**: Basic chat functionality along with conversation history tracking.
 - **Topic Creation**: Capability for users to create and manage topics within the chat , search topic etc.
 - **Code-Friendly Features**: Syntax highlighting and language detection for code snippets.
