@@ -10,7 +10,7 @@ chrome.action.onClicked.addListener((tab) => {
     chrome.sidePanel.open({ tabId: tab.id }).then(() => {
         chrome.sidePanel.setOptions({
             tabId: tab.id,
-            path: 'main.html',
+            path: 'html/main.html',
             enabled: true
         });
     });

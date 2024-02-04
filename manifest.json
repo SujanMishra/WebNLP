@@ -19,7 +19,7 @@
     ],
     
     "side_panel": {
-        "default_path": "main.html"
+        "default_path": "html/main.html"
     },
     
     "action": {
@@ -39,30 +39,39 @@
     "content_scripts": [
         {
             "matches": [ "<all_urls>" ],
-            "js": [ "content.js" ]
+            "js": [ "javaScripts/content.js" ]
         }
     ],
     
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "javaScripts/background.js"
     },
 
     "web_accessible_resources": [
         {
             "resources":
             [
-                "content.js",
+                "html/main.html",
+                "html/InfoBubble.html",
+
+                "css/infoBubble.css",
+                "css/main.css",
+
                 "lib/underscore-umd.js",
-                "main.html",
-                "InfoBubble.html",
-                "infoBubble.css",
-                "infoBubble.js" ,
-                "logger.js",
-                "RemoteServer.js",
-                "HttpService.js",
-                "Tweaks.js",
-                "Quest.js",
-                "detectLang.js"
+                "JavaScripts/content.js",
+
+
+                "JavaScripts/info/infoBubble.js" ,
+
+                "javaScripts/HelperClasses/logger.js",
+                "javaScripts/HelperClasses/detectLang.js",
+                "javaScripts/HelperClasses/Topic.js",
+
+                "javaScripts/NetWorking/RemoteServer.js",
+                "javaScripts/NetWorking/HttpService.js",
+
+                "javaScripts/Tweaks/Tweaks.js",
+                "javaScripts/Quest/Quest.js"
                 
                 
             ],
