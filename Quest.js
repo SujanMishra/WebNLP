@@ -57,20 +57,14 @@ class Topic {
                     copyButton.appendChild(icon);
                     copyButton.appendChild(buttonText);
 
+
                     copyButton.addEventListener("click", () => {
-                        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                            chrome.tabs.sendMessage(tabs[0].id, {
-                                action: "copy",
-                                text: codeText.textContent
-                            }, response => {
-                                if (response.success) {
-                                    console.log("Text copied successfully");
-                                } else {
-                                    console.error("Failed to copy text", response.error);
-                                }
-                            });
-                        });
+                        const textToCopy = codeText.textContent;
+                        navigator.clipboard.writeText(textToCopy)
+                            .then(() => console.log("Text copied successfully"))
+                            .catch(err => console.error("Failed to copy text", err));
                     });
+
 
                     titleBar.appendChild(copyButton);
                     codeContainer.appendChild(titleBar);

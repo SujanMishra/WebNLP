@@ -1,65 +1,44 @@
 
+
+chrome.runtime.onInstalled.addListener(() => {
+
+
+});
+
 chrome.action.onClicked.addListener((tab) => {
-    // Check if the current tab's URL is one where the extension should not run
-    if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://') || tab.url.startsWith('https://chrome.google.com/webstore')) {
-        // Redirect to a default webpage and remember this tab ID
-        chrome.tabs.update(tab.id, {url: 'https://www.google.com/'}).then(r =>{});
-        chrome.storage.local.set({pendingTabId: tab.id}).then(r =>{});
-    } else {
-        // Toggle the state and execute the appropriate function based on the new state
-        chrome.storage.local.get('isExtensionOn', (data) => {
-            let currentState = data.isExtensionOn || false;
-            let newState = !currentState;
-            chrome.storage.local.set({isExtensionOn: newState}).then(r =>{});
-            console.log("Sending message to tab:", tab.id);
-            chrome.tabs.sendMessage(tab.id, {text: 'toggle'}).then(r =>{});
-
+    // This will open the side panel on the current tab.
+    chrome.sidePanel.open({ tabId: tab.id }).then(() => {
+        chrome.sidePanel.setOptions({
+            tabId: tab.id,
+            path: 'main.html',
+            enabled: true
         });
-    }
-});
-
-// Listener for messages from content scripts
-
-
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete') {
-        chrome.storage.local.get(['pendingTabId'], function (result) {
-            if (result.pendingTabId === tabId) {
-                // This is the tab we were waiting for
-                // It's now fully loaded, so run the extension
-                chrome.tabs.sendMessage(tabId, {text: 'toggle'}).then(r =>{});
-                chrome.storage.local.remove(['pendingTabId']).then(r => {});
-            }
-        });
-    }
-
-    if (changeInfo.status === 'loading') {
-        removeIFrame(tabId);
-    }
-});
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.text === 'is_extension_on') {
-        chrome.storage.local.get('isExtensionOn', (data) => {
-            sendResponse({ status: data.isExtensionOn || false });
-        });
-        return true; // Indicates response will be sent asynchronously
-    }
-});
-
-function removeIFrame(tabId) {
-    chrome.tabs.sendMessage(tabId, {message: 'remove_iframe'}).then(r =>{});
-    chrome.storage.local.set({isExtensionOn: false}).then(r =>{});
-}
-
-chrome.tabs.onRemoved.addListener((tabId) => {
-    chrome.storage.local.get('isExtensionOn', (data) => {
-        if (data.isExtensionOn) {
-            removeIFrame(tabId);
-        }
     });
 });
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'openSidePanel') {
+        // This will open the panel in all the pages on the current window.
+        chrome.sidePanel.open({ windowId: tab.windowId });
+    }
+});
+
+chrome.runtime.onMessage.addListener((message, sender) => {
+    // The callback for runtime.onMessage must return falsy if we're not sending a response
+    (async () => {
+        if (message.type === 'open_side_panel') {
+            // This will open a tab-specific side panel only on the current tab.
+            await chrome.sidePanel.open({ tabId: sender.tab.id });
+            await chrome.sidePanel.setOptions({
+                tabId: sender.tab.id,
+                path: 'main.html',
+                enabled: true
+            });
+        }
+    })();
+});
+
+
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "sendRequest") {
