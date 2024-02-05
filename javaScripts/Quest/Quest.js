@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', function () {
     // Global Variables
 
@@ -31,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     elements.newTopicButton.addEventListener("click", openTopicOptions);
     elements.scrollLeftButton.addEventListener("click", scrollTopicListLeft);
     elements.scrollRightButton.addEventListener("click", scrollTopicListRight);
-    elements.createTopicButton.addEventListener("click", createTopic);
+    elements.createTopicButton.addEventListener("click", createTopicFromUI);
     elements.sendButtonQuestion.addEventListener("click", sendQuestion);
     elements.askInput.addEventListener("keydown", sendQuestion);
 
@@ -40,21 +38,61 @@ document.addEventListener('DOMContentLoaded', function () {
         elements.topicOptions.style.display = "block";
     }
 
-
-    // Create New Topic
-    function createTopic() {
+    function createTopicFromUI() {
         const topicName = elements.topicNameInput.value.trim();
+
         if (topicName === "") {
-            alert("Please enter a topic name.");
+            Swal.fire({
+                title: 'Oops...',
+                text: 'Please enter a topic name.',               
+                background: '#333', // Dark background
+                color: '#ccc', 
+                confirmButtonColor: '#3085d6', 
+                width: '400px',                
+                padding: '1rem', 
+            });
+
             return;
         }
 
+        const topicExists = topics.some(topic => topic.name === topicName);
+        if (topicExists) {
+            Swal.fire({
+                
+                title: 'Duplicate Topic',                
+                text: 'Please enter new topic name. Previous topic Exists',
+                background: '#333', 
+                color: '#ccc',
+                confirmButtonColor: '#3085d6',
+                width: '400px',               
+                padding: '1rem',
+            });
+            return;
+        }
+
+        const topic = createTopic(topicName);
+        if (topic) {
+            elements.topicNameInput.value = "";
+            elements.topicOptions.style.display = "none";
+        }
+    }
+
+
+    // Create New Topic
+    function createTopic(topicName = "") {
+
         // Create topic object with metadata
         const topic = new Topic(topicName);
-
-        // Add topic to the topics array
+        updateUITopicList(topic);
+        currentTopic = topic;
         topics.push(topic);
+        // Save the new topic to the database
+        saveDataToDb('topics', topics);
 
+        return topic;
+    }
+
+    function updateUITopicList(topic) {
         const topicBoxes = document.querySelectorAll(".topicBox");
         let topicBox = topicBoxes[0];
 
@@ -66,35 +104,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const topicButton = document.createElement("button");
         topicButton.classList.add("topic-button");
-        topicButton.textContent = topicName;
+        topicButton.textContent = topic.name;
         topicButton.addEventListener("click", function () {
             handleTopicClick(topic.name);
         });
 
         topicBox.prepend(topicButton);
-
-        elements.topicNameInput.value = "";
-        elements.topicOptions.style.display = "none";
-
-        // Save the new topic to the database
-        saveDataToDb('topics', topics);
     }
 
     // Populate the topic list with loaded topics
     function populateTopicList(topics) {
         topics.forEach(topic => {
-            const topicBox = document.createElement("div");
-            topicBox.classList.add("topicBox");
-            elements.topicList.prepend(topicBox);
-
-            const topicButton = document.createElement("button");
-            topicButton.classList.add("topic-button");
-            topicButton.textContent = topic.name;
-            topicButton.addEventListener("click", function () {
-                handleTopicClick(topic.text);
-            });
-
-            topicBox.prepend(topicButton);
+            updateUITopicList(topic);
         });
     }
 
@@ -111,16 +132,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Send Question
     function sendQuestion(event) {
-       // console.log('sendQuestion triggered by:', event.type);
+        // console.log('sendQuestion triggered by:', event.type);
 
 
         let isEnterPressed = event.key === "Enter";
         let isShiftPressed = event.shiftKey;
         let isClickOnSendButton = event.type === "click" && event.target === elements.sendButtonQuestion;
 
-       // console.log("Is Enter pressed:", isEnterPressed);
-       // console.log("Is Shift pressed:", isShiftPressed);
-       // console.log("Is Click on Send Button:", isClickOnSendButton);
+        // console.log("Is Enter pressed:", isEnterPressed);
+        // console.log("Is Shift pressed:", isShiftPressed);
+        // console.log("Is Click on Send Button:", isClickOnSendButton);
         if (isShiftPressed) {
 
             return;
@@ -133,23 +154,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             if (question === "") {
-               // console.log('No question entered');
+                // console.log('No question entered');
                 return;
             }
-            currentTopic =null;
+
             if (topics.length > 0) {
                 currentTopic = topics[topics.length - 1];
-               // console.log('Last active topic selected:', currentTopic);
+                // console.log('Last active topic selected:', currentTopic);
                 logMessage("You should have selected a topic for this question, question is added to last active topic!", false);
             } else {
-                const topic = new Topic(createGuid());
-               // console.log('New topic created with GUID:', topic);
+                const topic = createTopic(createUniqueTopicName());
+                // console.log('New topic created with GUID:', topic);
                 logMessage("Please add a topic name, a random topic was generated for this question!", false);
-                topics.push(topic);
+
                 currentTopic = topic;
             }
 
-           // console.log('Adding message to topic:', currentTopic);
+            // console.log('Adding message to topic:', currentTopic);
             currentTopic.addMessage(question, SenderType.USER);
             currentTopic.display(elements.historyContainer);
 
@@ -157,11 +178,17 @@ document.addEventListener('DOMContentLoaded', function () {
             elements.askInput.style.height = 'auto';
             elements.askInput.value = "";
 
-           // console.log('Sending HTTP request with topic and question');
+            // console.log('Sending HTTP request with topic and question');
             window.httpService.sendHttpRequest(currentTopic, question);
         }
     }
-
+    function createUniqueTopicName() {
+        let uniqueName;
+        do {
+            uniqueName = createGuid();
+        } while (topics.some(topic => topic.name === uniqueName));
+        return uniqueName;
+    }
     function createGuid() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);

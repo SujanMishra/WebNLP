@@ -19,13 +19,24 @@
 }
 
 /* Global Styles */
-html, body {
+html {
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-
+    box-sizing: border-box; 
 }
+
+body {
+    height: calc(100% - 5px); 
+    width: calc(100% - 5px); 
+    margin: auto; 
+    padding: 0;
+    border: 5px solid transparent;
+    box-sizing: border-box;
+    display: block;
+}
+
 
 .tabs {
     display: flex;
@@ -33,7 +44,6 @@ html, body {
     overflow-y: hidden;
     overflow-x: hidden;
     height: 50px;
-
 }
 
 .tabContent {
@@ -163,7 +173,7 @@ input[type="file"] {
     flex-direction: column;
     padding: 0.5%;
     margin-top: 5px;
-    border: solid rgb(0, 100, 100) 1px;
+   
     overflow-y: hidden;
     height: 100%
 }
@@ -435,7 +445,7 @@ input[type="file"] {
 
     margin-top: 5px;
     height: 100%;
-    border: solid rgb(0, 100, 100) 1px;
+   
     overflow-y: scroll;
     overflow-x: hidden;
 
