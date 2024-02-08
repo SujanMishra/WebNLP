@@ -44,12 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (topicName === "") {
             Swal.fire({
                 title: 'Oops...',
-                text: 'Please enter a topic name.',               
+                text: 'Please enter a topic name.',
                 background: '#333', // Dark background
-                color: '#ccc', 
-                confirmButtonColor: '#3085d6', 
-                width: '400px',                
-                padding: '1rem', 
+                color: '#ccc',
+                confirmButtonColor: '#3085d6',
+                width: '400px',
+                padding: '1rem',
             });
 
             return;
@@ -58,13 +58,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const topicExists = topics.some(topic => topic.name === topicName);
         if (topicExists) {
             Swal.fire({
-                
-                title: 'Duplicate Topic',                
+
+                title: 'Duplicate Topic',
                 text: 'Please enter new topic name. Previous topic Exists',
-                background: '#333', 
+                background: '#333',
                 color: '#ccc',
                 confirmButtonColor: '#3085d6',
-                width: '400px',               
+                width: '400px',
                 padding: '1rem',
             });
             return;
@@ -102,15 +102,106 @@ document.addEventListener('DOMContentLoaded', function () {
             elements.topicList.prepend(topicBox);
         }
 
+        // Create the topic button
         const topicButton = document.createElement("button");
         topicButton.classList.add("topic-button");
         topicButton.textContent = topic.name;
+        topicButton.style.position = 'relative'; // Enable absolute positioning inside
+
+        // Create the edit button
+        const editButton = document.createElement("span");
+        editButton.textContent = "edit";
+        editButton.classList.add("edit-button");
+        editButton.style.cssText = "position: absolute; top: 0; right: 0; font-size: small; cursor: pointer;";
+        editButton.onclick = function (e) {
+            e.stopPropagation(); // Prevent topic button click
+            initiateEdit(topic, topicButton);
+        };
+
+        topicButton.appendChild(editButton);
+
         topicButton.addEventListener("click", function () {
             handleTopicClick(topic.name);
         });
 
         topicBox.prepend(topicButton);
     }
+
+    function initiateEdit(topic, topicButton) {
+        // Clear existing content, but save the edit button
+        const editButton = topicButton.querySelector('.edit-button');
+        const originalText = topic.name; // Directly use the topic name
+        topicButton.innerHTML = ''; // Clear the button content, removing the edit button for now
+
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.value = originalText;
+        inputField.style.width = "calc(100% - 40px)"; // Adjust width to make space for the OK button and edit button
+
+        topicButton.appendChild(inputField);
+        inputField.focus();
+
+        // Function to confirm the edit and reset the button
+        const confirmEdit = function () {
+            const newName = inputField.value.trim();
+            if (newName && newName !== originalText) {
+                topic.name = newName; // Update the topic object
+                // Reconstruct the button with the new name and append the edit button
+                topicButton.textContent = newName;
+                topicButton.appendChild(editButton); // Re-add edit button
+                updateTopicInDb(topic);
+            } else {
+                topicButton.textContent = originalText; // Revert if no change
+                topicButton.appendChild(editButton); // Re-add edit button
+            }
+        };
+
+        // Confirm on Enter key
+        inputField.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                confirmEdit();
+            }
+        });
+
+        // Optional: Confirm with OK button
+        const okButton = document.createElement("button");
+        okButton.textContent = "OK";
+        okButton.style.cssText = "margin-left: 5px;"; // Space it a bit from the input field
+        okButton.onclick = function () {
+            confirmEdit();
+            // Stop propagation to prevent topic click event
+            event.stopPropagation();
+        };
+
+        // Adjust topicButton content for editing
+        topicButton.innerHTML = ''; // Clear to ensure no duplicate elements
+        topicButton.appendChild(inputField);
+        topicButton.appendChild(okButton);
+        // Re-append the edit button, but keep it hidden or disabled until editing is done
+        editButton.style.display = 'none';
+        topicButton.appendChild(editButton);
+
+        // Focus back to input and select text
+        inputField.focus();
+        inputField.select();
+
+        // After editing is confirmed, show the edit button again
+        inputField.addEventListener('blur', function () {
+            editButton.style.display = 'inline'; // Or adjust as needed for your layout
+        });
+    }
+
+    function updateTopicInDb(topic) {
+        // Assuming `topic` has an `id` property and `name` property
+        const updateMessage = {
+            type: 'updateTopicName',
+            id: topic.id,
+            newName: topic.name
+        };
+      
+        window.postMessage(updateMessage, '*');
+    }
+
 
     // Populate the topic list with loaded topics
     function populateTopicList(topics) {
@@ -163,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log('Last active topic selected:', currentTopic);
                 logMessage("You should have selected a topic for this question, question is added to last active topic!", false);
             } else {
-                const topic = createTopic(createUniqueTopicName());
+                const topic = createTopic(Utils.createUniqueTopicName());
                 // console.log('New topic created with GUID:', topic);
                 logMessage("Please add a topic name, a random topic was generated for this question!", false);
 
@@ -171,8 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             // console.log('Adding message to topic:', currentTopic);
-            currentTopic.addMessage(question, SenderType.USER);
-            currentTopic.display(elements.historyContainer);
+            currentTopic.addMessage(question, SenderType.USER, elements.historyContainer);
 
             elements.ask.style.height = 'auto';
             elements.askInput.style.height = 'auto';
@@ -182,19 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.httpService.sendHttpRequest(currentTopic, question);
         }
     }
-    function createUniqueTopicName() {
-        let uniqueName;
-        do {
-            uniqueName = createGuid();
-        } while (topics.some(topic => topic.name === uniqueName));
-        return uniqueName;
-    }
-    function createGuid() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
+
 
     function logMessage(message, isError = false) {
         const logMessageData = {

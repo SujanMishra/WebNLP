@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function () {
         llmUpdateEndpointInput: document.querySelector('#CustomLLMUpdateEndpointInput'),
         llmModelInput: document.querySelector('#CustomLLMModelInput'),
     };
-    
+
     let settingsValue = {
 
         llmServer: autoSavedElements.llmServerInput.value,
-        llmChatEndpoint: autoSavedElements.llmChatEndpointInput.value,       
+        llmChatEndpoint: autoSavedElements.llmChatEndpointInput.value,
         llmUpdateEndpoint: autoSavedElements.llmUpdateEndpointInput.value,
         llmModel: autoSavedElements.llmModelInput.value,
     };
@@ -37,8 +37,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const key = event.data.key;
             const data = event.data.data;
             saveDataToDb(key, data).then(r => {
-                
+
             });
+        } else if (event.data && event.data.type === 'updateTopicName') {
+            const id = event.data.id; // Assuming the ID is directly in the event data
+            const newName = event.data.newName; // Assuming the new name is also provided directly
+            updateTopicNameInApp(id, newName);
         } else if (event.data && event.data.type === 'setupAutoSave') {
             const data = event.data.data;
             const key = event.data.key;
@@ -48,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const key = event.data.key;
             loadDataFromDb(key).then((data) => {
                 // Sending back data to the caller tab through postMessage
-                window.postMessage({ type: 'dataLoadedFromDb', key: key, data: data }, '*');
+                window.postMessage({type: 'dataLoadedFromDb', key: key, data: data}, '*');
             }).catch((error) => {
                 logMessage(`Error loading data from DB: ${error}`, true);
             });
@@ -116,6 +120,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    function updateTopicNameInApp(id, newName) {
+        // Find the topic by ID
+        const topicIndex = topics.findIndex(topic => topic.id === id);
+        if (topicIndex !== -1) {
+            // Update the topic's name
+            topics[topicIndex].name = newName;
+
+            // Optionally, save the updated topics list to the database
+            saveDataToDb('topics', topics).then(() => {
+                console.log('Topic name updated successfully');
+            }).catch(error => {
+                console.error('Failed to update topic name in DB', error);
+            });
+
+        } else {
+            console.error('Topic not found for ID:', id);
+        }
+    }
 
     async function saveSettings() {
         const missingFields = Object.keys(settingsValue).filter(key => {
@@ -139,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Use the downloads API instead of the File System Access API
             if (chrome && chrome.downloads) {
-                const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(exportData)], {type: 'application/json'});
                 const url = URL.createObjectURL(blob);
 
                 chrome.downloads.download({
@@ -151,11 +173,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             } else {
                 // Fallback: Save the settings using the File API
-                const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(exportData)], {type: 'application/json'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'settings.json'; 
+                a.download = 'settings.json';
                 a.click();
                 URL.revokeObjectURL(url);
             }
@@ -198,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     values[name.replace('Input', '')] = inputElement.value; // Update the value in the values object
                     settingsValue[name.replace('Input', '')] = inputElement.value; // Update the corresponding property in settingsValue
                     saveDataToDb(key, values).then(r => {
-                        
+
                     }); // Save all values together
                     logMessage(`Value saved successfully. Field: ${name}, Value: ${inputElement.value}`, false);
                 });
@@ -208,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Save all values together on page unload
         window.addEventListener('beforeunload', () => {
             saveDataToDb(key, values).then(r => {
-                
+
             });
         });
     }
@@ -220,8 +242,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-    
-    
+
+
     function saveDataToDb(key, data) {
         return new Promise((resolve, reject) => {
             const transaction = db.transaction(['data'], 'readwrite');
@@ -287,6 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         });
     }
+
     async function loadSettings() {
         try {
             await importDataFromFile();
@@ -381,11 +404,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const llmUpdateEndpoint = elements.llmUpdateEndpointInput.value;
 
 
-
         const llmUpdateRequest = llmServer && llmUpdateEndpoint ?
             fetch(llmUpdateEndpoint, {
                 method: 'POST',
-                body: JSON.stringify({ llmModel }),
+                body: JSON.stringify({llmModel}),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -397,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const llmUpdateSuccess = llmUpdateResponse && llmUpdateResponse.ok;
 
-                if ( llmUpdateSuccess) {
+                if (llmUpdateSuccess) {
                     logMessage('Models updated successfully!', false);
                 } else {
                     logMessage('Failed to update models.', true);
@@ -407,7 +429,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 logMessage('Error updating models: ' + error.message, true);
             });
     }
-
 
 
 });
