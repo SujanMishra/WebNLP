@@ -34,9 +34,12 @@ class Topic {
         } else if (message.type === SenderType.SERVER) {
             messageDiv.classList.add('server-message-blob');
         }
-
+        console.log("generateMessageBubble processing text:", message.text);
         this.DetectLang.splitIntoLanguageChunks(message.text).then(chunks => {
+            console.log("DetectLang : splitIntoLanguageChunks :", chunks.length);
+            
             chunks.forEach(chunk => {
+                console.log("chunk:", chunk.text);
                 if (chunk.language !== 'Unknown' && chunk.language !== 'noncode') {
                     const codeContainer = document.createElement("div");
                     codeContainer.classList.add('code-container');
@@ -95,12 +98,16 @@ class Topic {
 
     // Method to display an entire topic in history container
     display(historyContainer) {
-        historyContainer.textContent = ""; // Clear the history container
-        this.messages.forEach(message => {
+        historyContainer.textContent = ""; 
+       // console.log("messages:", this.messages.length); 
+        this.messages.forEach((message, index) => {
+           // console.log(`Processing message #${index + 1}:`, message);
             const messageBubble = this.generateMessageBubble(message);
             historyContainer.appendChild(messageBubble);
         });
     }
+
+
 
     // Update topic 
     updateTopic(newName) {

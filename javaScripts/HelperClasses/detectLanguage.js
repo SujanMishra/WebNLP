@@ -1667,12 +1667,12 @@
         let processedResults = await Promise.all(detectionTasks);
         let combinedChunks = this.reassembleChunks(processedResults, blocks);
 
-        // console.log("End combinedChunks detection result");
-        // combinedChunks.forEach((chunk, index) => {
-        //     console.log(`Combined chunk ${index + 1}: Language - ${chunk.language}`);
-        //     console.log(`Text: ${chunk.lines.join('\n')}`);
-        //     console.log('---');
-        // });
+        console.log("End combinedChunks detection result");
+        combinedChunks.forEach((chunk, index) => {
+            console.log(`Combined chunk ${index + 1}: Language - ${chunk.language}`);
+            console.log(`Text: ${chunk.lines.join('\n')}`);
+            console.log('---');
+        });
 
         return combinedChunks;
     }
@@ -1783,12 +1783,21 @@
 
         chunks.forEach(chunk => {
             if (currentChunk && chunk.language === currentChunk.language) {
+                // Combine lines without altering the original chunk's lines array
                 currentChunk.lines = currentChunk.lines.concat(chunk.lines);
+                // Regenerate text from combined lines to ensure it matches the updated lines array
+                currentChunk.text = currentChunk.lines.join('\n');
             } else {
                 if (currentChunk) {
                     combinedChunks.push(currentChunk);
                 }
-                currentChunk = chunk;
+                // Create a deep copy of the chunk to avoid modifying the original chunk
+                // and ensure text matches the lines array
+                currentChunk = {
+                    ...chunk,
+                    lines: [...chunk.lines],
+                    text: chunk.lines.join('\n') // Ensure text is generated from lines for new chunk
+                };
             }
         });
 
@@ -1798,6 +1807,8 @@
 
         return combinedChunks;
     }
+
+
 
 
 }
