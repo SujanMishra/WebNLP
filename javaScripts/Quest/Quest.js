@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Reconstruct the button with the new name and append the edit button
                 topicButton.textContent = newName;
                 topicButton.appendChild(editButton); // Re-add edit button
-                updateTopicInDb(topic);
+                updateTopicInDb(topic,topics);
             } else {
                 topicButton.textContent = originalText; // Revert if no change
                 topicButton.appendChild(editButton); // Re-add edit button
@@ -191,12 +191,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function updateTopicInDb(topic) {
+    function updateTopicInDb(topic,topics) {
         // Assuming `topic` has an `id` property and `name` property
         const updateMessage = {
             type: 'updateTopicName',
             id: topic.id,
-            newName: topic.name
+            newName: topic.name.name,
+            topics :topics
         };
       
         window.postMessage(updateMessage, '*');
@@ -254,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log('Last active topic selected:', currentTopic);
                 logMessage("You should have selected a topic for this question, question is added to last active topic!", false);
             } else {
-                const topic = createTopic(Utils.createUniqueTopicName());
+                const topic = createTopic(Utils.createUniqueTopicName(topics));
                 // console.log('New topic created with GUID:', topic);
                 logMessage("Please add a topic name, a random topic was generated for this question!", false);
 

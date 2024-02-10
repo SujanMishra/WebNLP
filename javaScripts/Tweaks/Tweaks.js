@@ -42,7 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (event.data && event.data.type === 'updateTopicName') {
             const id = event.data.id; // Assuming the ID is directly in the event data
             const newName = event.data.newName; // Assuming the new name is also provided directly
-            updateTopicNameInApp(id, newName);
+            const topics =event.data.topics;
+            updateTopicNameInApp(id, newName,topics);
         } else if (event.data && event.data.type === 'setupAutoSave') {
             const data = event.data.data;
             const key = event.data.key;
@@ -120,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    function updateTopicNameInApp(id, newName) {
+    function updateTopicNameInApp(id, newName,topics) {
         // Find the topic by ID
         const topicIndex = topics.findIndex(topic => topic.id === id);
         if (topicIndex !== -1) {

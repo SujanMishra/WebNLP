@@ -11,7 +11,7 @@ class Utils {
             return v.toString(16);
         });
     }
-    static createUniqueTopicName() {
+    static createUniqueTopicName(topics) {
         let uniqueName;
         do {
             uniqueName = Utils.createGuid();
