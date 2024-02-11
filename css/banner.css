@@ -1,0 +1,64 @@
+﻿.banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    height: 120px; /* Set a fixed height for the banner */
+    width: 100%;
+}
+
+.left-content, .center-content, .right-content {
+    display: flex;
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+}
+
+.left-content, .right-content {
+    flex: 1; /* Give left and right content equal flex-grow factor */
+}
+
+.center-content {
+    flex: 2; /* Center content takes up twice the space */
+    flex-direction: column; /* Stack sponsors and message vertically */
+    justify-content: center;
+}
+
+.left-content .logo img {
+   
+    max-width: 100px; /* Adjust size as needed */
+    height: auto; /* Maintain aspect ratio */
+}
+
+
+.center-content .sponsors {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center items horizontally */
+    flex-wrap: wrap; /* Allow items to wrap */
+    margin-top: 10px; /* Space above this section */
+}
+.center-content .sponsors img,
+.center-content .sponsors span,
+.center-content .sponsors p {
+    margin-right: 5px; /* Spacing between elements */
+}
+.center-content .sponsors p {
+    display: flex; /* Enable flex layout for the paragraph */
+    align-items: center; /* Align items vertically */
+    margin: 0; /* Remove default margin */
+}
+/* Adjust the style for the encouragement message */
+.encouragement-message {
+    width: 100%; /* Take the full width to ensure it's on a new line */
+    text-align: center; /* Center the text */
+    margin-top: 10px; /* Space from the above elements */
+}
+
+.right-content {
+    display: flex;
+    justify-content: flex-end; /* Keeps content aligned to the right */
+    align-items: center; /* Centers content vertically within the div */
+    flex: 1; /* Maintain equal flex basis with left-content and center-content */
+}
+
+
