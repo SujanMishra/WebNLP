@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="../lib/sweetalert2.css">
 </head>
 <body class="dark-theme">
-<div class="banner">
+
+<div class="banner" data-type="banner" id="banner">
     <div class="left-content">
         <div class="logo">
             <img src="../icons/OcentraLogo.png" alt="Logo">
@@ -21,26 +22,31 @@
         <div class="sponsors">
             <img src="../icons/icon16.png" alt="Web NLP Icon">
             <span>Web NLP</span>
-            <p>
-                Sponsored by:
-                <i class="fas fa-handshake" style="font-size: 20px; color: #FFF;"></i>
-                <span>:</span>
-            </p>
+            <p> <i class="fas fa-handshake" style="font-size: 20px; color: #00ff06;"></i></p>
+            <span>: By</span>
         </div>
+        <!-- Separate container for brackets and icons -->
+        <div class="sponsor-logos">
+            <span class="bracket">[</span>
+            <!-- Icons will be dynamically inserted here -->
+            <img src="../icons/sponsor1.png" alt="Sponsor Logo 1" class="sponsor-icon">
+            <img src="../icons/sponsor2.png" alt="Sponsor Logo 2" class="sponsor-icon">
+            <span class="bracket">]</span>
+        </div>
+
         <div class="encouragement-message">
             <a href="#support-us" style="color: inherit; text-decoration: none;">
-                <i class="fas fa-heart" style="font-size: 20px; color: red;"></i>
-                Support us by sponsoring
+                <i class="fas fa-heart" style="font-size: 15px; color: red;"></i>
+                Support us by Sponsoring
             </a>
         </div>
     </div>
+
     <div class="right-content">
         <i class="fas fa-user-circle" style="font-size: 50px; color: #FFF;"></i>
+        <span>Log In</span>
     </div>
 </div>
-
-
-
 
 <div class="tabs">
 

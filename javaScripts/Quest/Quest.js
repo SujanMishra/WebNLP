@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
         historyContainer: document.querySelector("#HistoryContainer"),
         ask: document.querySelector("#Ask"), // Only ID selector as there's no class
         askInput: document.querySelector("#AskInput"),
-        sendButtonQuestion: document.querySelector("#SendButtonQuestion")
+        sendButtonQuestion: document.querySelector("#SendButtonQuestion"),
+        banner:document.querySelector("#banner")
     };
 
 
@@ -343,29 +344,34 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    // Adjust Container Heights
     function adjustContainerHeights() {
+        // Assuming you have a way to access your elements, like a 'elements' object
         const windowHeight = window.innerHeight;
+        const bannerHeight = elements.banner ? elements.banner.offsetHeight : 0; // Include the banner height in the calculation
         const newTopicButtonHeight = elements.newTopicButton.offsetHeight;
         const topicContainerHeight = elements.topicContainer.offsetHeight;
         const askHeight = elements.ask.offsetHeight;
 
-        const containerHeight = windowHeight - (newTopicButtonHeight + askHeight + topicContainerHeight);
-        const adjustedContainerHeight = containerHeight - containerHeight * 0.4;
-        elements.chatContainer.style.height = adjustedContainerHeight + "px";
+        // Now include the bannerHeight in the total subtraction to get the remaining container height
+        const containerHeight = windowHeight - (bannerHeight + newTopicButtonHeight + topicContainerHeight + askHeight);
+        const adjustedContainerHeight = containerHeight - (containerHeight * 0.4); // Adjust the container height as per the logic
+        elements.chatContainer.style.height = `${adjustedContainerHeight}px`;
 
+        // The historyContainer should take the remaining height after adjusting for the ask element
         const historyContainerHeight = adjustedContainerHeight - askHeight;
-        elements.historyContainer.style.height = historyContainerHeight + "px";
+        elements.historyContainer.style.height = `${historyContainerHeight}px`;
 
+        // Calculate the width for horizontal scrolling if needed
         const topicContainerWidth = elements.topicContainer.offsetWidth;
         const topicListWidth = elements.topicList.offsetWidth;
         const scrollButtonsWidth = elements.scrollLeftButton.offsetWidth + elements.scrollRightButton.offsetWidth;
 
+        // Check if horizontal scrolling is necessary
         if (topicListWidth > topicContainerWidth) {
             elements.topicContainer.classList.add("scrollable");
             const availableWidth = topicContainerWidth - scrollButtonsWidth;
             const maxScroll = topicListWidth - availableWidth;
-            elements.topicList.style.maxWidth = topicListWidth + "px";
+            elements.topicList.style.maxWidth = `${topicListWidth}px`;
             elements.topicList.style.transform = `translateX(-${maxScroll}px)`;
             elements.scrollLeftButton.classList.remove("disabled");
             elements.scrollRightButton.classList.add("disabled");
@@ -377,7 +383,6 @@ document.addEventListener('DOMContentLoaded', function () {
             elements.scrollRightButton.classList.add("disabled");
         }
     }
-
 
     // Initial adjustment of container heights
     adjustContainerHeights();
