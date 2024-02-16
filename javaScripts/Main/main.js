@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    const links = document.querySelectorAll('.external-link');
+
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent the default link behavior
+            const url = this.getAttribute('href');
+            
+            chrome.tabs.create({ url });
+        });
+    });
+
+
     // Setup and start the MutationObserver
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
