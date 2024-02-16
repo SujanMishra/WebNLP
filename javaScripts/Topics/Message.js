@@ -1,41 +1,26 @@
-﻿/* global chrome */
-const SenderType = {
-    USER: 'user',
-    SERVER: 'server'
-};
-
-class Utils {
-    static createGuid() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
-    static createUniqueTopicName(topics) {
-        let uniqueName;
-        do {
-            uniqueName = Utils.createGuid();
-        } while (topics.some(topic => topic.name === uniqueName));
-        return uniqueName;
-    }
-}
-
-class Chunk {
-    constructor(text, language, isCode) {
-        this.text = text;
-        this.language = language;
-        this.isCode = isCode;
-    }
-}
-
-class Message {
+﻿ class Message {
     constructor(type, chunks = []) {
         this.id = Utils.createGuid();
         this.type = type;
         this.metadata = {
-            
+
         };
         this.chunks = Array.isArray(chunks) ? chunks : [];
+    }
+    serialize() {
+        return JSON.stringify({
+            id: this.id,
+            type: this.type,
+            metadata: this.metadata,
+            chunks: this.chunks.map(chunk => chunk.serialize()),
+        });
+    }
+
+    static deserialize(messageData) {
+        const message = new Message(messageData.type, messageData.chunks.map(Chunk.deserialize));
+        message.id = messageData.id;
+        message.metadata = messageData.metadata;
+        return message;
     }
 
     /**
@@ -136,52 +121,5 @@ class Message {
         messageText.classList.add('plain-text');
         messageText.innerHTML = chunk.text.replace(/\n/g, '<br>');
         return messageText;
-    }
-}
-
-class Topic {
-    constructor(name, messages = []) {
-        this.id = Utils.createGuid();
-        this.name = name;
-        this.messages = Array.isArray(messages) ? messages : [];
-        this.metadata = {
-
-            name: name
-        };
-        this.DetectLang = new DetectLanguage();
-    }
-
-
-    addMessage(messageText, type, historyContainer) {
-        this.DetectLang.splitIntoLanguageChunks(messageText).then(chunks => {
-
-            let newMessage = new Message(type, []);
-
-            chunks.forEach(chunk => {
-                let newChunk = new Chunk(chunk.text, chunk.language, chunk.isCode);
-                newMessage.addChunk(newChunk);
-            });
-
-            this.messages.push(newMessage);
-            let messageDiv = newMessage.generateMessageDiv();
-            historyContainer.appendChild(messageDiv);
-            historyContainer.scrollTop = historyContainer.scrollHeight;
-        }).catch(error => console.error("Error processing language chunks:", error));
-    }
-
-
-    // Method to display an entire topic in history container
-    display(historyContainer) {
-        historyContainer.textContent = "";
-        // console.log("messages:", this.messages.length); 
-        this.messages.forEach((message, index) => {
-            historyContainer.appendChild(message.generateMessageDiv());
-        });
-        historyContainer.scrollTop = historyContainer.scrollHeight;
-    }
-
-    // Update topic 
-    updateTopic(newName) {
-        this.name = newName;
     }
 }

@@ -1,6 +1,6 @@
+
 document.addEventListener('DOMContentLoaded', function () {
     // Global Variables
-
     const elements = {
         newTopicButton: document.querySelector("#NewTopicButton"),
         topicContainer: document.querySelector("#TopicContainer"),
@@ -17,14 +17,9 @@ document.addEventListener('DOMContentLoaded', function () {
         sendButtonQuestion: document.querySelector("#SendButtonQuestion"),
         banner:document.querySelector("#banner")
     };
-
-
-    const timeoutDelay = 500;
-
-    // Topics array to store all the Topic instances
-    let topics = [];
-    let currentTopic = null;
-    let fsHandle; // File System Handle
+  
+    let topicManager = TopicsManager.Instance;
+    topicManager.init();
 
     // Event Listeners
     elements.newTopicButton.addEventListener("click", openTopicOptions);
@@ -56,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const topicExists = topics.some(topic => topic.name === topicName);
+        const topicExists = topicManager.topics.some(topic => topic.name === topicName);
         if (topicExists) {
             Swal.fire({
 
@@ -71,27 +66,18 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const topic = createTopic(topicName);
+        const topic = topicManager.createTopic(topicName);
         if (topic) {
             elements.topicNameInput.value = "";
             elements.topicOptions.style.display = "none";
         }
     }
 
-
-    // Create New Topic
-    function createTopic(topicName = "") {
-
-        // Create topic object with metadata
-        const topic = new Topic(topicName);
+    topicManager.on('topicCreated', topic => {
         updateUITopicList(topic);
-        currentTopic = topic;
-        topics.push(topic);
-        // Save the new topic to the database
-        saveDataToDb('topics', topics);
+    });
 
-        return topic;
-    }
+
 
     function updateUITopicList(topic) {
         const topicBoxes = document.querySelectorAll(".topicBox");
@@ -150,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Reconstruct the button with the new name and append the edit button
                 topicButton.textContent = newName;
                 topicButton.appendChild(editButton); // Re-add edit button
-                updateTopicInDb(topic,topics);
+                topicManager.updateTopicNameInDb(topic);
             } else {
                 topicButton.textContent = originalText; // Revert if no change
                 topicButton.appendChild(editButton); // Re-add edit button
@@ -192,22 +178,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function updateTopicInDb(topic,topics) {
-        // Assuming `topic` has an `id` property and `name` property
-        const updateMessage = {
-            type: 'updateTopicName',
-            id: topic.id,
-            newName: topic.name.name,
-            topics :topics
-        };
-      
-        window.postMessage(updateMessage, '*');
-    }
+
 
 
     // Populate the topic list with loaded topics
-    function populateTopicList(topics) {
-        topics.forEach(topic => {
+    function populateTopicList() {
+        topicManager.topics.forEach(topic => {
             updateUITopicList(topic);
         });
     }
@@ -215,11 +191,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Handle Topic Click
     function handleTopicClick(topicName) {
-        currentTopic = topics.find(topic => topic.name === topicName);
-        if (currentTopic) {
-            currentTopic.display(elements.historyContainer);
+        topicManager.currentTopic = topicManager.topics.find(topic => topic.name === topicName);
+        if (topicManager.currentTopic) {
+            topicManager.currentTopic.display(elements.historyContainer);
         } else {
-            logMessage(`No topic currently selected ${topics.length}`);
+            logMessage(`No topic currently selected ${topicManager.topics.length}`);
         }
     }
 
@@ -251,27 +227,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (topics.length > 0) {
-                currentTopic = topics[topics.length - 1];
-                // console.log('Last active topic selected:', currentTopic);
+            if (topicManager.topics.length > 0) {
+                topicManager.currentTopic = topicManager.topics[topicManager.topics.length - 1];
+                // console.log('Last active topic selected:', topicManager.currentTopic);
                 logMessage("You should have selected a topic for this question, question is added to last active topic!", false);
             } else {
-                const topic = createTopic(Utils.createUniqueTopicName(topics));
+                const topic = topicManager.createTopic(Utils.createUniqueTopicName(topicManager.topics));
                 // console.log('New topic created with GUID:', topic);
                 logMessage("Please add a topic name, a random topic was generated for this question!", false);
 
-                currentTopic = topic;
+                topicManager.currentTopic = topic;
             }
 
-            // console.log('Adding message to topic:', currentTopic);
-            currentTopic.addMessage(question, SenderType.USER, elements.historyContainer);
+            // console.log('Adding message to topic:', topicManager.currentTopic);
+            topicManager.currentTopic.addMessage(question, SenderType.USER, elements.historyContainer);
 
             elements.ask.style.height = 'auto';
             elements.askInput.style.height = 'auto';
             elements.askInput.value = "";
 
             // console.log('Sending HTTP request with topic and question');
-            window.httpService.sendHttpRequest(currentTopic, question);
+            window.httpService.sendHttpRequest(topicManager.currentTopic, question);
         }
     }
 
@@ -384,48 +360,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Initial adjustment of container heights
+  
     adjustContainerHeights();
-
-    // Load topics from file when the DOM content is loaded
-    // loadTopicsFromFile();
-
-    function saveDataToDb(key, data) {
-        const message = {
-            type: 'saveDataToDB',
-            key: key,
-            data: data
-        };
-        try {
-            window.postMessage(message, '*');
-        } catch (error) {
-
-            logMessage((error), true);
-        }
-
-    }
-
-    // Sending tab
-    const dataToAutoSave = {
-
-        // ... 
-    };
-
-    const message = {
-        type: 'setupAutoSave',
-        data: dataToAutoSave
-    };
-
-
-    function loadDataFromDb(key) {
-        const message = {
-            type: 'loadDataFromDB',
-            key: key,
-        };
-        window.postMessage(message, '*');
-    }
-
-    loadDataFromDb('topics');
+  
 
     // Load topics on page load
     window.addEventListener('message', function (event) {
@@ -435,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (key === 'topics') {
 
-                populateTopicList(data);
+                populateTopicList();
             }
         }
     });

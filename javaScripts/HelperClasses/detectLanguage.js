@@ -1,4 +1,4 @@
-﻿class DetectLanguage {
+﻿ class DetectLanguage {
     constructor() {
         this.languages = {
 
